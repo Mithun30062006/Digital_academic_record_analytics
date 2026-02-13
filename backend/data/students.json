@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "student_number": "S001",
+    "first_name": "Student",
+    "last_name": "One",
+    "dob": null,
+    "gender": "O",
+    "email": "student1@example.com",
+    "class_name": "10A",
+    "enrollment_date": null,
+    "status": "active",
+    "password_hash": "$2a$10$4jmru3OhuGwfDjmIHWtNpeBzY5bTMcQ5UIsz4LKximjWCgMsOrx3.",
+    "created_at": "2026-02-13T03:17:29.581Z"
+  }
+]
