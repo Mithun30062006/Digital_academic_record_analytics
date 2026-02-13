@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Digital Academic Records</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Digital Academic Records</h1>
+    <div class="card">
+      <label for="role">Login As</label>
+      <select id="role">
+        <option value="admin">Admin</option>
+        <option value="student">Student</option>
+      </select>
+
+      <div id="admin-form" class="login-form">
+        <input id="admin-username" placeholder="Username" />
+        <div class="password-field">
+          <input id="admin-password" type="password" placeholder="Password" />
+          <button type="button" class="toggle-password" data-target="admin-password">Show</button>
+        </div>
+        <button id="admin-login">Login as Admin</button>
+      </div>
+
+      <div id="student-form" class="login-form" style="display:none">
+        <input id="student-number" placeholder="Student Number" />
+        <div class="password-field">
+          <input id="student-password" type="password" placeholder="Password" />
+          <button type="button" class="toggle-password" data-target="student-password">Show</button>
+        </div>
+        <button id="student-login">Login as Student</button>
+      </div>
+    </div>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

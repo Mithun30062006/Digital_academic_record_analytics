@@ -1,0 +1,14 @@
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{background:#f5f7fa;margin:0;padding:20px}
+.container{max-width:960px;margin:0 auto}
+.card{background:#fff;padding:20px;border-radius:6px;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+input,select,button{display:block;width:100%;padding:8px;margin:8px 0}
+/* password field with toggle */
+.password-field{position:relative}
+.password-field input{padding-right:70px}
+.toggle-password{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:60px;padding:6px;border:none;background:#eee;border-radius:4px;cursor:pointer}
+.toggle-password:active{transform:translateY(-50%) scale(.98)}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+table,th,td{border:1px solid #ddd}
+th,td{padding:8px;text-align:left}
+section{margin-top:20px}

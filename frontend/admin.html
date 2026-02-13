@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Dashboard</h1>
+    <div>
+      <button id="logout">Logout</button>
+    </div>
+
+    <section>
+      <h2>Students</h2>
+      <form id="student-form">
+        <input name="student_number" placeholder="Student Number" required />
+        <input name="first_name" placeholder="First name" required />
+        <input name="last_name" placeholder="Last name" required />
+        <input name="password" placeholder="Password" />
+        <button type="submit">Add Student</button>
+      </form>
+      <table id="students-table"></table>
+    </section>
+
+    <section>
+      <h2>Subjects</h2>
+      <form id="subject-form">
+        <input name="code" placeholder="Code" required />
+        <input name="name" placeholder="Name" required />
+        <input name="credits" placeholder="Credits" type="number" />
+        <button type="submit">Add Subject</button>
+      </form>
+      <table id="subjects-table"></table>
+    </section>
+
+    <section>
+      <h2>Marks</h2>
+      <form id="marks-form">
+        <input name="student_id" placeholder="Student ID" required />
+        <input name="subject_id" placeholder="Subject ID" required />
+        <input name="exam_year" placeholder="Year" required />
+        <input name="marks" placeholder="Marks" required type="number" />
+        <button type="submit">Add Marks</button>
+      </form>
+      <table id="marks-table"></table>
+    </section>
+
+    <section>
+      <h2>Reports & Charts</h2>
+      <div class="card">
+        <h3>Topper (Class)</h3>
+        <div id="topper-info"></div>
+      </div>
+      <div class="card">
+        <h3>Pass / Fail Percentage</h3>
+        <canvas id="passfailChart" width="400" height="200"></canvas>
+      </div>
+      <div class="card">
+        <h3>Subject Stats</h3>
+        <input id="subject-stats-id" placeholder="Subject ID for stats" />
+        <button id="load-subject-stats">Load Subject Stats</button>
+        <canvas id="subjectStatsChart" width="400" height="200"></canvas>
+        <div id="subject-stats-info"></div>
+      </div>
+    </section>
+  </div>
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/charts.js"></script>
+</body>
+</html>
