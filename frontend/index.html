@@ -1,41 +1,131 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Login - Digital Academic Records</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Portal - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 </head>
-<body>
-  <div class="container">
-    <h1>Digital Academic Records</h1>
-    <div class="card">
-      <label for="role">Login As</label>
-      <select id="role">
-        <option value="admin">Admin</option>
-        <option value="student">Student</option>
-      </select>
 
-      <div id="admin-form" class="login-form">
-        <input id="admin-username" placeholder="Username" />
-        <div class="password-field">
-          <input id="admin-password" type="password" placeholder="Password" />
-          <button type="button" class="toggle-password" data-target="admin-password">Show</button>
-        </div>
-        <button id="admin-login">Login as Admin</button>
-      </div>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
-      <div id="student-form" class="login-form" style="display:none">
-        <input id="student-number" placeholder="Student Number" />
-        <div class="password-field">
-          <input id="student-password" type="password" placeholder="Password" />
-          <button type="button" class="toggle-password" data-target="student-password">Show</button>
-        </div>
-        <button id="student-login">Login as Student</button>
+  <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-xl p-10 md:p-12">
+    <!-- TOP ICON SECTION -->
+    <div class="flex justify-center mb-6">
+      <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
+        <svg class="w-12 h-12 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+          <path
+            d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM3.89 9.5l8.11 4.42 8.11-4.42-8.11-4.42L3.89 9.5zM12 15.5l-7-3.82v2.32l7 3.82 7-3.82v-2.32l-7 3.82z" />
+        </svg>
       </div>
     </div>
+
+    <!-- TITLE & SUBTITLE -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Academic Portal</h1>
+      <p class="text-gray-400 text-sm">Enter your credentials to access your dashboard</p>
+    </div>
+
+    <!-- ROLE SWITCH TABS -->
+    <div class="flex justify-center mb-8 border-b border-gray-100 relative">
+      <div class="flex gap-12">
+        <button id="studentTab"
+          class="pb-3 text-sm font-bold border-b-2 border-orange-500 text-orange-500 transition-all">Student</button>
+        <button id="adminTab"
+          class="pb-3 text-sm font-bold border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition-all">Admin</button>
+      </div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <div class="space-y-6">
+      <!-- USERNAME FIELD -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2 ml-1">Username or Email</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <input type="text" id="username" placeholder="Enter your ID or email"
+            class="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-medium text-gray-800 outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all">
+        </div>
+      </div>
+
+      <!-- PASSWORD FIELD -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2 ml-1">Password</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <input type="password" id="password" placeholder="••••••••"
+            class="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-sm font-medium text-gray-800 outline-none focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all">
+        </div>
+      </div>
+
+      <!-- CHECKBOX -->
+      <div class="flex items-center ml-1">
+        <input type="checkbox" id="showPassword"
+          class="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 cursor-pointer">
+        <label for="showPassword" class="ml-2 text-xs font-medium text-gray-500 cursor-pointer select-none">Show
+          password</label>
+      </div>
+
+      <!-- SIGN IN BUTTON -->
+      <button id="login-btn"
+        class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-5 rounded-2xl shadow-lg shadow-orange-100 flex items-center justify-center gap-2 transform active:scale-[0.98] transition-all">
+        Sign In
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+        </svg>
+      </button>
+    </div>
   </div>
+
+  <!-- Hidden role input -->
+  <input type="hidden" id="role" value="student">
+
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
+  <script>
+    const studentTab = document.getElementById('studentTab');
+    const adminTab = document.getElementById('adminTab');
+    const roleInput = document.getElementById('role');
+    const showPassword = document.getElementById('showPassword');
+    const passwordInput = document.getElementById('password');
+
+    studentTab.addEventListener('click', () => {
+      roleInput.value = 'student';
+      studentTab.classList.add('border-orange-500', 'text-orange-500');
+      studentTab.classList.remove('text-gray-400', 'border-transparent');
+      adminTab.classList.remove('border-orange-500', 'text-orange-500');
+      adminTab.classList.add('text-gray-400', 'border-transparent');
+    });
+
+    adminTab.addEventListener('click', () => {
+      roleInput.value = 'admin';
+      adminTab.classList.add('border-orange-500', 'text-orange-500');
+      adminTab.classList.remove('text-gray-400', 'border-transparent');
+      studentTab.classList.remove('border-orange-500', 'text-orange-500');
+      studentTab.classList.add('text-gray-400', 'border-transparent');
+    });
+
+    showPassword.addEventListener('change', function () {
+      passwordInput.type = this.checked ? 'text' : 'password';
+    });
+  </script>
 </body>
+
 </html>

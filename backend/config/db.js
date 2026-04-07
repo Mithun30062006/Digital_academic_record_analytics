@@ -1,25 +1,42 @@
-// If you want to use a real MySQL database set USE_DB=true in .env
-if (process.env.USE_DB === 'true') {
-  const mysql = require('mysql2/promise');
-  const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_DATABASE || 'digital_academic_records',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    charset: 'utf8mb4'
-  });
+const mongoose = require('mongoose');
 
-  async function testConnection() {
-    const conn = await pool.getConnection();
-    try { await conn.ping(); } finally { conn.release(); }
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mydatabase';
+
+async function testConnection() {
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log('MongoDB Connected Successfully');
+
+    mongoose.connection.on('error', (err) => {
+      console.error('MongoDB connection error:', err.message);
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.warn('MongoDB disconnected');
+    });
+  } catch (err) {
+    console.error('MongoDB connection error:', err.message);
+    throw err;
   }
-
-  module.exports = { pool, testConnection };
-} else {
-  async function testConnection() { return; }
-  const pool = null;
-  module.exports = { pool, testConnection };
 }
+
+async function closeConnection() {
+  try {
+    await mongoose.connection.close(false);
+    console.log('MongoDB connection closed');
+  } catch (err) {
+    console.error('Error closing MongoDB connection:', err.message);
+  }
+}
+
+process.on('SIGINT', async () => {
+  await closeConnection();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await closeConnection();
+  process.exit(0);
+});
+
+module.exports = { testConnection, mongoose, closeConnection };

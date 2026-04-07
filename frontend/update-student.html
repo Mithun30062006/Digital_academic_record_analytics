@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Student Profile - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: #334155;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            background: #ffffff;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .back-btn:hover {
+            color: #ec4899;
+            border-color: #ec4899;
+            transform: translateX(-4px);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .form-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .search-section {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px dashed #f1f5f9;
+        }
+
+        .search-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 20px;
+        }
+
+        .form-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .form-header p {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #1e293b;
+            transition: all 0.3s ease;
+            outline: none;
+            background-color: #f8fafc;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: #ec4899;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: none;
+        }
+
+        .btn-search {
+            background: #1e293b;
+            color: white;
+            padding: 0 24px;
+        }
+
+        .btn-primary {
+            background: #0284c7;
+            color: #ffffff;
+            flex: 2;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0369a1;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #64748b;
+            flex: 1;
+            text-decoration: none;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .status-found { background: #dcfce7; color: #16a34a; }
+        .status-idle { background: #f1f5f9; color: #64748b; }
+        .status-error { background: #fee2e2; color: #ef4444; }
+
+        .form-section {
+            opacity: 0.5;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .form-section.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        @media (max-width: 640px) {
+            .form-card { padding: 24px; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="admin.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+            <h1>Update Student Profile</h1>
+        </div>
+
+        <div class="form-card">
+            <!-- SEARCH SECTION -->
+            <div class="search-section">
+                <label class="form-label">Find Student by ID</label>
+                <div class="search-group">
+                    <input type="text" id="searchId" class="form-input" placeholder="Enter student ID (e.g. 2023001)">
+                    <button id="btnSearch" class="btn btn-search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+                <div id="searchStatus" class="status-badge status-idle mt-4" style="margin-top: 15px;">
+                    <i class="fa-solid fa-circle-question mr-2" style="margin-right: 8px;"></i> Waiting for search...
+                </div>
+            </div>
+
+            <!-- FORM SECTION -->
+            <div id="formSection" class="form-section">
+                <div class="form-header">
+                    <h2>Profile Details</h2>
+                    <p>Modify the information below and click Update to save changes.</p>
+                </div>
+
+                <form id="updateForm">
+                    <!-- Hidden internal database ID -->
+                    <input type="hidden" id="dbId">
+
+                    <div class="form-group">
+                        <label class="form-label">Student Name</label>
+                        <input type="text" id="studentName" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Official Student ID</label>
+                        <input type="text" id="studentId" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="email" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mobile Number</label>
+                        <input type="tel" id="mobile" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Batch</label>
+                        <input type="text" id="batch" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                      <label class="form-label">Department</label>
+                      <select id="department" class="form-select" required>
+                          <option value="Electrical and Electronics Engineering">Electrical and Electronics Engineering</option>
+                          <option value="Electronics and Communication Engineering">Electronics and Communication Engineering</option>
+                          <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                          <option value="Information Technology">Information Technology</option>
+                      </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Current Year</label>
+                        <select id="year" class="form-select" required>
+                            <option value="I">I</option>
+                            <option value="II">II</option>
+                            <option value="III">III</option>
+                            <option value="IV">IV</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Semester</label>
+                        <select id="semester" class="form-select" required>
+                            <option value="I">I</option>
+                            <option value="II">II</option>
+                            <option value="III">III</option>
+                            <option value="IV">IV</option>
+                            <option value="V">V</option>
+                            <option value="VI">VI</option>
+                            <option value="VII">VII</option>
+                            <option value="VIII">VIII</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Password (Reset if needed)</label>
+                        <input type="text" id="password" class="form-input" placeholder="Enter new password">
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="submit" class="btn btn-primary" id="btnUpdate">Update Information</button>
+                        <button type="button" class="btn btn-secondary" onclick="location.href='admin.html'">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        const searchInput = document.getElementById('searchId');
+        const btnSearch = document.getElementById('btnSearch');
+        const searchStatus = document.getElementById('searchStatus');
+        const formSection = document.getElementById('formSection');
+        const updateForm = document.getElementById('updateForm');
+
+        // Search logic
+        async function findStudent() {
+            const query = searchInput.value.trim();
+            if(!query) return;
+
+            btnSearch.disabled = true;
+            searchStatus.className = 'status-badge status-idle';
+            searchStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2" style="margin-right: 8px;"></i> Searching...';
+            
+            try {
+                const response = await fetch(`${API_URL}/students`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+                
+                if (response.ok) {
+                    const students = await response.json();
+                    const student = students.find(s => s.student_id === query || s.id === query);
+                    
+                    if (student) {
+                        populateForm(student);
+                        searchStatus.className = 'status-badge status-found';
+                        searchStatus.innerHTML = `<i class="fa-solid fa-circle-check mr-2" style="margin-right: 8px;"></i> Student found: ${student.name}`;
+                        formSection.classList.add('active');
+                    } else {
+                        searchStatus.className = 'status-badge status-error';
+                        searchStatus.innerHTML = '<i class="fa-solid fa-circle-xmark mr-2" style="margin-right: 8px;"></i> Student not found';
+                        formSection.classList.remove('active');
+                    }
+                } else {
+                    throw new Error('API Error');
+                }
+            } catch (err) {
+                searchStatus.className = 'status-badge status-error';
+                searchStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-2" style="margin-right: 8px;"></i> Error searching: ${err.message}`;
+            } finally {
+                btnSearch.disabled = false;
+            }
+        }
+
+        function populateForm(s) {
+            document.getElementById('dbId').value = s.id;
+            document.getElementById('studentName').value = s.name || '';
+            document.getElementById('studentId').value = s.student_id || '';
+            document.getElementById('email').value = s.email || '';
+            document.getElementById('mobile').value = s.mobile || '';
+            document.getElementById('batch').value = s.batch || '';
+            document.getElementById('department').value = s.department || '';
+            document.getElementById('year').value = s.year || '';
+            document.getElementById('semester').value = s.semester || 'I';
+            document.getElementById('password').value = s.password || '';
+        }
+
+        btnSearch.addEventListener('click', findStudent);
+        searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') findStudent(); });
+
+        // Update logic
+        updateForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('dbId').value;
+            const btnUpdate = document.getElementById('btnUpdate');
+            
+            const updatedData = {
+                name: document.getElementById('studentName').value,
+                student_id: document.getElementById('studentId').value,
+                email: document.getElementById('email').value,
+                mobile: document.getElementById('mobile').value,
+                batch: document.getElementById('batch').value,
+                department: document.getElementById('department').value,
+                year: document.getElementById('year').value,
+                semester: document.getElementById('semester').value,
+                password: document.getElementById('password').value
+            };
+
+            btnUpdate.disabled = true;
+            btnUpdate.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Updating...';
+
+            try {
+                const response = await fetch(`${API_URL}/students/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (response.ok) {
+                    alert('Profile updated successfully!');
+                    window.location.href = 'admin.html';
+                } else {
+                    const err = await response.json();
+                    alert('Update failed: ' + (err.message || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('Connection error: ' + err.message);
+            } finally {
+                btnUpdate.disabled = false;
+                btnUpdate.innerHTML = 'Update Information';
+            }
+        });
+    </script>
+</body>
+
+</html>

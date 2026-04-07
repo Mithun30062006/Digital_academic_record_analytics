@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/config.js"></script>
+</head>
+
+<body class="roster-body">
+    <div class="roster-container">
+        <!-- Top Bar -->
+        <div class="roster-topbar">
+            <a href="admin.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+            <h2>Attendance</h2>
+            <div style="width: 24px;"></div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="roster-content">
+            <!-- Filter Section — Department & Year -->
+            <div class="roster-filter-section">
+                <div class="filter-group">
+                    <label for="filterDepartment">Department</label>
+                    <div class="select-wrapper">
+                        <select id="filterDepartment" onchange="checkFilters()">
+                            <option value="" disabled selected>Choose Department...</option>
+                            <option value="eee">Electrical and Electronics Engineering</option>
+                            <option value="ece">Electronics and Communication Engineering</option>
+                            <option value="cse">Computer Science and Engineering</option>
+                            <option value="it">Information Technology</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label for="filterYear">Semester</label>
+                    <div class="select-wrapper">
+                        <select id="filterYear" onchange="checkFilters()">
+                            <option value="" disabled selected>Choose Semester...</option>
+                            <option value="I">I</option>
+                            <option value="II">II</option>
+                            <option value="III">III</option>
+                            <option value="IV">IV</option>
+                            <option value="V">V</option>
+                            <option value="VI">VI</option>
+                            <option value="VII">VII</option>
+                            <option value="VIII">VIII</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                    </div>
+                </div>
+                <!-- Icon-only Action Tab with anchored Dropdown -->
+                <div class="filter-group action-group">
+                    <div class="action-tab" onclick="toggleCalendarDropdown()" title="Actions">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <i class="fa-solid fa-chevron-down dropdown-icon"></i>
+                    </div>
+
+                    <!-- Anchored Dropdown Window (Box Shaped) -->
+                    <div id="actionModal" class="action-dropdown hidden">
+                        <div class="dropdown-window">
+                            <div class="window-content">
+                                <!-- Year Selection -->
+                                <div class="description-section">
+                                    <label>Select Year</label>
+                                    <div class="select-wrapper">
+                                        <select id="actionYearSelect">
+                                            <option value="" disabled selected>Choose Year...</option>
+                                            <option value="I">I</option>
+                                            <option value="II">II</option>
+                                            <option value="III">III</option>
+                                            <option value="IV">IV</option>
+                                            <option value="ALL">ALL</option>
+                                        </select>
+                                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                                    </div>
+                                </div>
+
+                                <!-- Custom Date Display -->
+                                <div class="custom-date-display" onclick="openSessionDatePicker(event)" style="margin-top: 20px;">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                    <span id="displayDate">13 - 03 - 2026</span>
+                                    <i class="fa-regular fa-calendar" id="calendarIcon"></i>
+                                    <input type="date" id="hiddenActionDate" onchange="syncActionDate()" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;">
+                                </div>
+
+                                <!-- Due To Selection -->
+                                <div class="description-section" style="margin-top: 20px;">
+                                    <label>Due To</label>
+                                    <div class="select-wrapper">
+                                        <select id="actionReason">
+                                            <option value="Sunday">Sunday</option>
+                                            <option value="Leave">Leave</option>
+                                            <option value="Semester">Semester</option>
+                                        </select>
+                                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                                    </div>
+                                </div>
+
+                                <div class="window-actions" style="margin-top: 20px;">
+                                    <button class="cancel-btn" onclick="toggleCalendarDropdown()">Cancel</button>
+                                    <button class="submit-btn" onclick="submitAction()">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State (shown when no filters selected) -->
+            <div class="roster-empty-state" id="emptyState">
+                <div class="empty-state-icon">
+                    <i class="fa-solid fa-users-rectangle"></i>
+                </div>
+                <h3>Select Department & Year</h3>
+                <p>Choose both a department and year above to view the student roster.</p>
+            </div>
+
+            <!-- Roster Section (hidden until both filters selected) -->
+            <div id="rosterSection" class="hidden">
+                <!-- Top Info Row -->
+                <div class="roster-header-info">
+                    <div class="info-group">
+                        <label>Session Date</label>
+                        <div class="date-input-wrapper">
+                            <i class="fa-regular fa-calendar"></i>
+                            <input type="date" id="sessionDatePicker" onchange="updateDateDisplay()">
+                        </div>
+                    </div>
+                    <div class="search-group">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" placeholder="Search student name or ID..." class="roster-search"
+                            id="rosterSearch" oninput="filterStudents()">
+                    </div>
+                </div>
+
+                <!-- Session Tabs -->
+                <div class="session-tabs">
+                    <button class="tab-btn active" onclick="selectSession(1)">Session 1</button>
+                    <button class="tab-btn" onclick="selectSession(2)">Session 2</button>
+                    <button class="tab-btn" onclick="selectSession(3)">Session 3</button>
+                    <button class="tab-btn" onclick="selectSession(4)">Session 4</button>
+                </div>
+
+                <!-- Student List -->
+                <div class="roster-list-section">
+                    <!-- Special Action Status Box -->
+                    <div id="specialActionBox" class="special-action-box hidden">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span id="specialActionText" style="flex: 1;"></span>
+                        <button id="deleteActionBtn" class="delete-action-btn" title="Delete Status">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+
+
+                    <h3 class="roster-list-title" id="rosterTitle">Student Roster</h3>
+
+
+                    <div class="student-list" id="studentList">
+                        <!-- Students will be populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Action Bar (hidden until both filters selected) -->
+        <div class="roster-footer hidden" id="rosterFooter">
+            <p class="footer-note">All changes are automatically drafted until saved.</p>
+            <button class="save-attendance-btn" onclick="saveAttendance()">SAVE ATTENDANCE</button>
+        </div>
+    </div>
+
+    <script>
+        // Attendance State
+        let currentSession = 1;
+        let attendanceData = { 1: {}, 2: {}, 3: {}, 4: {} };
+        let studentRoster = [];
+
+        // Role restriction check
+        (function() {
+            const role = localStorage.getItem('role');
+            if (role !== 'admin') {
+                console.warn('Unauthorized access attempt detected. Redirecting to login.');
+                window.location.href = 'index.html';
+            }
+        })();
+
+        const deptMapping = {
+            'eee': 'Electrical and Electronics Engineering',
+            'ece': 'Electronics and Communication Engineering',
+            'cse': 'Computer Science and Engineering',
+            'it': 'Information Technology'
+        };
+
+        const avatarColors = [
+            { bg: 'e0f2fe', color: '0284c7' },
+            { bg: 'ffedd5', color: 'ea580c' },
+            { bg: 'dcfce7', color: '16a34a' },
+            { bg: 'fce7f3', color: 'db2777' },
+            { bg: 'e0e7ff', color: '4f46e5' }
+        ];
+
+        // Initialize date picker with today's date
+        function initDatePicker() {
+            const picker = document.getElementById('sessionDatePicker');
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            picker.value = `${year}-${month}-${day}`;
+        }
+        window.onload = initDatePicker;
+
+        function updateDateDisplay() {
+            // Logic for when date changes
+            console.log("Selected Date:", document.getElementById('sessionDatePicker').value);
+            fetchAttendance();
+            
+            const year = document.getElementById('filterYear').value;
+            if (year) {
+                fetchSpecialAction(year);
+            }
+        }
+
+
+        // Check if both filters are selected
+        function checkFilters() {
+            const dept = document.getElementById('filterDepartment').value;
+            const year = document.getElementById('filterYear').value;
+            const emptyState = document.getElementById('emptyState');
+            const rosterSection = document.getElementById('rosterSection');
+            const rosterFooter = document.getElementById('rosterFooter');
+
+            if (dept && year) {
+                emptyState.classList.add('hidden');
+                rosterSection.classList.remove('hidden');
+                rosterFooter.classList.remove('hidden');
+
+                const mappedDept = deptMapping[dept] || dept;
+                fetchStudents(mappedDept, year);
+                fetchSpecialAction(year);
+            } else {
+
+                emptyState.classList.remove('hidden');
+                rosterSection.classList.add('hidden');
+                rosterFooter.classList.add('hidden');
+            }
+        }
+
+        // Handle Session Selection
+        function selectSession(sessionNum) {
+            currentSession = sessionNum;
+
+            // Update UI Tabs
+            document.querySelectorAll('.tab-btn').forEach((btn, index) => {
+                if (index + 1 === sessionNum) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Re-populate with current session data
+            renderRoster();
+        }
+
+        let fetchError = null;
+
+        async function fetchStudents(dept, year) {
+            try {
+                fetchError = null;
+                const list = document.getElementById('studentList');
+                list.innerHTML = '<div class="p-8 text-center text-blue-500 font-bold">Loading students...</div>';
+                
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                const res = await fetch(`${API_URL}/students/filter?department=${encodeURIComponent(dept)}&year=${encodeURIComponent(year)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    studentRoster = data.map((s, idx) => ({
+                        name: s.name,
+                        id: s.student_id,
+                        db_id: s._id,
+                        ...avatarColors[idx % avatarColors.length]
+                    }));
+                    attendanceData = { 1: {}, 2: {}, 3: {}, 4: {} };
+                    await fetchAttendance();
+                    selectSession(1);
+                } else {
+                    const errorData = await res.json().catch(() => ({}));
+                    fetchError = `Error ${res.status}: ${errorData.message || errorData.error || 'Failed to fetch students'}`;
+                    studentRoster = [];
+                    renderRoster();
+                }
+            } catch (err) {
+                console.error('Error fetching students:', err);
+                fetchError = `Network Error: ${err.message}`;
+                studentRoster = [];
+                renderRoster();
+            }
+        }
+
+        // Populate student cards
+        function renderRoster() {
+            const list = document.getElementById('studentList');
+            
+            if (fetchError) {
+                list.innerHTML = `<div class="p-8 text-center text-red-500 font-bold">${fetchError}</div>`;
+                return;
+            }
+
+            const query = (document.getElementById('rosterSearch')?.value || '').toLowerCase();
+            const filtered = studentRoster.filter(s => {
+                const nameMatch = s.name && s.name.toLowerCase().includes(query);
+                const idMatch = s.id && s.id.toLowerCase().includes(query);
+                return nameMatch || idMatch;
+            });
+
+            document.getElementById('rosterTitle').textContent = `Student Roster (${filtered.length})`;
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="p-8 text-center text-gray-400">No students found matching the criteria.</div>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(s => {
+                const status = attendanceData[currentSession][s.id] || null;
+                return `
+                    <div class="student-card" data-id="${s.id}">
+                        <div class="student-info">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=${s.bg}&color=${s.color}&rounded=true"
+                                alt="Avatar" class="student-avatar">
+                            <div>
+                                <div class="student-name">${s.name}</div>
+                                <div class="student-id">${s.id}</div>
+                            </div>
+                        </div>
+                        <div class="attendance-toggles">
+                            <button class="toggle-btn present ${status === 'present' ? 'active-present' : ''}" 
+                                onclick="markAttendance(this, 'present')">PRESENT</button>
+                            <button class="toggle-btn absent ${status === 'absent' ? 'active-absent' : ''}" 
+                                onclick="markAttendance(this, 'absent')">ABSENT</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function fetchAttendance() {
+            const date = document.getElementById('sessionDatePicker').value;
+            const studentIds = studentRoster.map(s => s.id);
+            
+            if (studentIds.length === 0) return;
+
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${API_URL}/attendance?date=${date}&student_ids=${studentIds.join(',')}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    
+                    // Reset attendanceData
+                    attendanceData = { 1: {}, 2: {}, 3: {}, 4: {} };
+                    
+                    // Populate with fetched results
+                    data.forEach(record => {
+                        if (attendanceData[record.session]) {
+                            attendanceData[record.session][record.student_id] = record.status;
+                        }
+                    });
+                    
+                    renderRoster();
+                }
+            } catch (err) {
+                console.error('Error fetching attendance:', err);
+            }
+        }
+
+
+
+        // Present / Absent Active State Toggle Logic
+        function markAttendance(button, status) {
+            const card = button.closest('.student-card');
+            const studentId = card.dataset.id;
+            const togglesContainer = button.closest('.attendance-toggles');
+            const presentBtn = togglesContainer.querySelector('.present');
+            const absentBtn = togglesContainer.querySelector('.absent');
+
+            presentBtn.classList.remove('active-present');
+            absentBtn.classList.remove('active-absent');
+
+            if (status === 'present') {
+                presentBtn.classList.add('active-present');
+                attendanceData[currentSession][studentId] = 'present';
+            } else if (status === 'absent') {
+                absentBtn.classList.add('active-absent');
+                attendanceData[currentSession][studentId] = 'absent';
+            }
+        }
+
+        // Search / filter students by name or ID
+        function filterStudents() {
+            renderRoster();
+        }
+
+        // Toggle Calendar (Floating Window)
+        function toggleCalendarDropdown() {
+            const modal = document.getElementById('actionModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                // Initialize display date from session picker
+                syncActionDate(document.getElementById('sessionDatePicker').value);
+            }
+        }
+
+        function syncActionDate(dateValue) {
+            const display = document.getElementById('displayDate');
+            const hidden = document.getElementById('hiddenActionDate');
+            
+            let val = dateValue || hidden.value;
+            if (!val) {
+                val = new Date().toISOString().split('T')[0];
+            }
+            
+            hidden.value = val;
+            const parts = val.split('-'); // YYYY-MM-DD
+            if (parts.length === 3) {
+                display.textContent = `${parts[2]} - ${parts[1]} - ${parts[0]}`;
+            }
+        }
+
+        function openSessionDatePicker(e) {
+            const input = document.getElementById('hiddenActionDate');
+            if (input.showPicker) {
+                input.showPicker();
+            } else {
+                input.click();
+            }
+        }
+
+        async function submitAction() {
+            const year = document.getElementById('actionYearSelect').value;
+            const date = document.getElementById('hiddenActionDate').value;
+            const reason = document.getElementById('actionReason').value;
+            
+            if (!year) {
+                alert('Please select a year first.');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${API_URL}/special-actions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ year, date, reason })
+                });
+
+                if (res.ok) {
+                    alert(`Action for Year ${year} on ${date} submitted: ${reason}`);
+                    toggleCalendarDropdown();
+                    
+                    // If the updated action affects the current view, refresh it
+                    const currentYear = document.getElementById('filterYear').value;
+                    if (currentYear === year || year === 'ALL') {
+                        fetchSpecialAction(currentYear);
+                    }
+                } else {
+                    const data = await res.json();
+                    alert(`Failed to save action: ${data.message || 'Unknown error'}`);
+                }
+            } catch (err) {
+                console.error('Error submitting action:', err);
+                alert('Network error while saving action.');
+            }
+        }
+
+        async function fetchSpecialAction(year) {
+            const date = document.getElementById('sessionDatePicker').value;
+            const box = document.getElementById('specialActionBox');
+            const text = document.getElementById('specialActionText');
+            
+            if (!date || !year) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${API_URL}/special-actions?date=${date}&year=${year}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const action = await res.json();
+                    if (action) {
+                        box.classList.remove('hidden');
+                        text.textContent = `Note: Today is ${action.reason} for Year ${action.year === 'ALL' ? 'All' : action.year} students.`;
+                        
+                        // Set up delete button
+                        const deleteBtn = document.getElementById('deleteActionBtn');
+                        deleteBtn.onclick = () => deleteSpecialAction(action.year, action.date);
+                    } else {
+
+                        box.classList.add('hidden');
+                    }
+                } else {
+                    box.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error('Error fetching special action:', err);
+                box.classList.add('hidden');
+            }
+        }
+
+        async function deleteSpecialAction(year, date) {
+            if (!confirm(`Are you sure you want to delete this status for Year ${year === 'ALL' ? 'All' : year}?`)) {
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${API_URL}/special-actions?year=${year}&date=${date}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    alert('Status deleted successfully.');
+                    const currentYear = document.getElementById('filterYear').value;
+                    fetchSpecialAction(currentYear);
+                } else {
+                    const data = await res.json();
+                    alert(`Failed to delete status: ${data.message || 'Unknown error'}`);
+                }
+            } catch (err) {
+                console.error('Error deleting special action:', err);
+                alert('Network error while deleting status.');
+            }
+        }
+
+
+
+        async function saveAttendance() {
+            const date = document.getElementById('sessionDatePicker').value;
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                alert('Session expired. Please login again.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Prepare records array
+            const records = [];
+            
+            // attendanceData has format { 1: { student_id: 'present', ... }, 2: { ... } }
+            for (const session in attendanceData) {
+                for (const studentId in attendanceData[session]) {
+                    records.push({
+                        student_id: studentId,
+                        date: date,
+                        session: parseInt(session),
+                        status: attendanceData[session][studentId]
+                    });
+                }
+            }
+
+            if (records.length === 0) {
+                alert('No attendance data to save. Please mark some students first.');
+                return;
+            }
+
+            const saveBtn = document.querySelector('.save-attendance-btn');
+            const originalText = saveBtn.textContent;
+            
+            try {
+                saveBtn.disabled = true;
+                saveBtn.textContent = 'SAVING...';
+
+                const res = await fetch(`${API_URL}/attendance`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ records })
+                });
+
+                const result = await res.json();
+                
+                if (res.ok) {
+                    alert('Attendance for all sessions saved successfully!');
+                    console.log('Save result:', result);
+                } else {
+                    alert(`Failed to save attendance: ${result.message || 'Unknown error'}`);
+                }
+            } catch (err) {
+                console.error('Save error:', err);
+                alert('Network error while saving attendance. Please try again.');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalText;
+            }
+        }
+    </script>
+</body>
+
+</html>

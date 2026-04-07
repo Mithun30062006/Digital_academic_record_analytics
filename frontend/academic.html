@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enter Marks - Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/config.js"></script>
+  <style>
+    /* Card Entry Styles (Adapted from Exam Schedule) */
+    .dept-card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      margin: 0 30px 24px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #e2e8f0;
+    }
+
+    .dept-info-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .dept-icon {
+      width: 50px;
+      height: 50px;
+      background: #eef2ff;
+      color: #4f46e5;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .dept-details h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      color: #1e293b;
+    }
+
+    .dept-details p {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .dept-stats {
+      display: flex;
+      gap: 20px;
+    }
+
+    .stat-item {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1e293b;
+    }
+
+    .stat-item span {
+      color: #64748b;
+      font-weight: 400;
+      text-transform: uppercase;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 30px 16px 30px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #475569;
+    }
+
+    .badge {
+      background: #eff6ff;
+      color: #2563eb;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .record-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 0 30px 24px 30px;
+    }
+
+    .record-card {
+      background: #ffffff;
+      border: 1px solid #f1f3f7;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .record-card:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      transform: translateY(-2px);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .record-label {
+      font-weight: 600;
+      color: #94a3b8;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .delete-record-btn {
+      color: #ef4444;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      transition: color 0.2s;
+    }
+
+    .delete-record-btn:hover {
+      color: #dc2626;
+    }
+
+    .record-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1.2fr 0.8fr;
+      gap: 16px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .input-style {
+      height: 40px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      padding: 8px 12px;
+      font-size: 14px;
+      width: 100%;
+      transition: border-color 0.2s;
+      background-color: #f8fafc;
+    }
+
+    .input-style:focus {
+      outline: none;
+      border-color: #2563eb;
+      background-color: #ffffff;
+    }
+
+    .add-record-btn {
+      margin: 0 30px 30px 30px;
+      border: 2px dashed #e2e8f0;
+      border-radius: 10px;
+      padding: 20px;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+
+    .add-record-btn:hover {
+      background: #f8fafc;
+      border-color: #2563eb;
+    }
+
+    .add-record-btn i {
+      font-size: 20px;
+      color: #2563eb;
+    }
+
+    .add-record-btn span {
+      font-weight: 600;
+      color: #1e293b;
+      font-size: 14px;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      background-color: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+    }
+
+    .btn-save {
+      background: #2563eb;
+      border: none;
+      color: white;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-save:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    /* Searchable Dropdown Styles */
+    .searchable-select {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 10px 15px;
+      padding-right: 35px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1e293b;
+      cursor: text;
+      transition: all 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #2563eb;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .dropdown-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      pointer-events: none;
+      font-size: 12px;
+    }
+
+    .dropdown-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin-top: 5px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+
+    /* History Table Styles */
+    .table-container {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 15px;
+    }
+
+    .exam-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .exam-table th {
+      background: #f8fafc;
+      padding: 15px 20px;
+      text-align: left;
+      font-weight: 600;
+      color: #64748b;
+      border-bottom: 2px solid #e2e8f0;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .exam-table td {
+      padding: 15px 20px;
+      color: #1e293b;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .exam-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .exam-table tr:hover {
+      background: #fdfdfd;
+    }
+
+    .btn-publish {
+      background: #f59e0b; /* Orange-yellow for publish */
+      color: white;
+      border: none;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    }
+
+    .btn-publish:hover {
+      background: #d97706;
+      transform: translateY(-1px);
+    }
+
+    .dropdown-list.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 10px 15px;
+      font-size: 14px;
+      color: #475569;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background: #f1f5f9;
+      color: #2563eb;
+    }
+
+    .dropdown-item.no-results {
+      color: #94a3b8;
+      cursor: default;
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+
+<body class="academic-body">
+  <div class="academic-container">
+
+    <!-- Top Section -->
+    <div class="academic-header">
+      <div class="header-title-group">
+        <a href="admin.html" class="academic-back-btn">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+          <h1 class="academic-title">Enter Marks</h1>
+          <p class="academic-subtitle">Record and manage performance data for individual students.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="academic-filters" style="padding: 20px 30px; display: flex; gap: 20px;">
+      <div class="filter-group" style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 13px; font-weight: 500; color: #64748b; margin-left: 5px;">Select Student</label>
+        <div class="searchable-select" id="studentSearchContainer">
+          <input type="text" id="studentSearchInput" class="search-input" placeholder="Type to search student..." autocomplete="off">
+          <i class="fa-solid fa-chevron-down dropdown-icon"></i>
+          <div id="studentDropdown" class="dropdown-list">
+            <div class="dropdown-item no-results">Loading students...</div>
+          </div>
+          <input type="hidden" id="studentSelect" value="">
+        </div>
+      </div>
+      <div class="filter-group" style="flex: 0.5; display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 13px; font-weight: 500; color: #64748b; margin-left: 5px;">Select Semester</label>
+        <div class="select-wrapper">
+          <select id="yearSelect" class="form-select"
+            style="width: 100%; appearance: none; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 8px; font-size: 14px; color: #475569; cursor: pointer;">
+            <option value="" disabled selected>Choose Semester</option>
+            <option value="I">I</option>
+            <option value="II">II</option>
+            <option value="III">III</option>
+            <option value="IV">IV</option>
+            <option value="V">V</option>
+            <option value="VI">VI</option>
+            <option value="VII">VII</option>
+            <option value="VIII">VIII</option>
+          </select>
+          <i class="fa-solid fa-chevron-down select-icon"
+            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; font-size: 12px;"></i>
+        </div>
+      </div>
+      <div class="filter-group" style="flex: 0.5; display: flex; flex-direction: column; gap: 8px;">
+        <label style="font-size: 13px; font-weight: 500; color: #64748b; margin-left: 5px;">Select Exam</label>
+        <div class="select-wrapper">
+          <select id="examSelect" class="form-select"
+            style="width: 100%; appearance: none; background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 8px; font-size: 14px; color: #475569; cursor: pointer;">
+            <option value="" disabled selected>Choose Exam</option>
+            <option value="half1">Half 1</option>
+            <option value="half2">Half 2</option>
+            <option value="model">Model</option>
+            <option value="semester">Semester</option>
+          </select>
+          <i class="fa-solid fa-chevron-down select-icon"
+            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; font-size: 12px;"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conditional Content Section (Initially Hidden) -->
+    <div id="marksContent" style="display: none;">
+      <!-- Summary Card -->
+      <section class="dept-card">
+        <div class="dept-info-wrapper">
+          <div class="dept-icon">
+            <i class="fa-solid fa-user-graduate"></i>
+          </div>
+          <div class="dept-details">
+            <h2 id="summaryStudent">Student Name</h2>
+            <p>Student Performance Entry</p>
+          </div>
+        </div>
+        <div class="dept-stats">
+          <div class="stat-item">SEMESTER : <span id="summaryYear">III</span></div>
+          <div class="stat-item">EXAM : <span id="summaryExam">HALF 1</span></div>
+        </div>
+      </section>
+
+      <!-- History Content Section (Initially Hidden) -->
+      <div id="historyContent" style="display: none; padding: 0 30px 30px 30px;">
+        <div class="section-header" style="margin: 0 0 16px 0;">
+          <h3 class="section-title">PREVIOUS RECORDS</h3>
+          <span class="badge">History</span>
+        </div>
+        <div class="table-container">
+          <table class="exam-table">
+            <thead>
+              <tr>
+                <th>COURSE CODE</th>
+                <th>COURSE NAME</th>
+                <th>MARKS</th>
+                <th style="width: 100px;">TYPE</th>
+                <th style="width: 80px;">ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <!-- Past marks will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px;">
+          <button id="historyToggleBtn" class="btn" onclick="toggleHistoryPublish()">Show Student</button>
+          <button class="btn btn-save" onclick="editExistingMarks()">Edit Marks</button>
+        </div>
+      </div>
+
+      <!-- Mark Entry Section (The existing "STUDENT MARKS" UI) -->
+      <div id="entrySection" style="display: block;">
+        <!-- Section Header -->
+        <div class="section-header">
+          <h3 class="section-title">STUDENT MARKS</h3>
+          <span class="badge" id="recordCountBadge">0 Total</span>
+        </div>
+
+        <!-- Record List Container -->
+        <div class="record-list" id="recordList">
+          <!-- Mark cards will be injected here -->
+        </div>
+
+        <!-- Add New Record Button -->
+        <button class="add-record-btn" onclick="addNewRecord()">
+          <i class="fa-solid fa-plus"></i>
+          <span>Add New Student Record</span>
+        </button>
+
+        <!-- Footer Actions -->
+        <div class="footer-actions">
+          <button class="btn btn-cancel" onclick="window.location.href='admin.html'">Cancel</button>
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-publish" onclick="publishToStudent()">Show Student</button>
+            <button class="btn btn-save" onclick="saveMarks()">Save Marks</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainerRight" class="toast-container right"></div>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainerRight');
+      const toast = document.createElement('div');
+      
+      const iconClass = type === 'error' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+      const animationClass = 'slide-in-right';
+      
+      toast.className = `toast ${type} ${animationClass}`;
+      toast.innerHTML = `
+        <i class="${iconClass}"></i>
+        <span class="toast-message">${message}</span>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('fade-out');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    let markRecords = [];
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const studentSearchInput = document.getElementById('studentSearchInput');
+      const studentDropdown = document.getElementById('studentDropdown');
+      const studentSelect = document.getElementById('studentSelect');
+      const yearSelect = document.getElementById('yearSelect');
+      const examSelect = document.getElementById('examSelect');
+      const marksContent = document.getElementById('marksContent');
+
+      const summaryStudent = document.getElementById('summaryStudent');
+      const summaryYear = document.getElementById('summaryYear');
+      const summaryExam = document.getElementById('summaryExam');
+
+      // Fetch students from database
+      async function loadStudents() {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch('http://localhost:3000/api/students', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          
+          if (response.ok) {
+            const students = await response.json();
+            if (students.length === 0) {
+              studentDropdown.innerHTML = '<div class="dropdown-item no-results">No students found in database</div>';
+              return;
+            }
+            
+            let html = '';
+            students.forEach(s => {
+              const studentNameFull = `${s.name} (${s.student_id})`;
+              html += `<div class="dropdown-item" data-value="${s.student_id}">${studentNameFull}</div>`;
+            });
+            studentDropdown.innerHTML = html;
+          } else {
+            studentDropdown.innerHTML = '<div class="dropdown-item no-results">Error loading students</div>';
+          }
+        } catch (err) {
+          console.error('Fetch Students Error:', err);
+          studentDropdown.innerHTML = '<div class="dropdown-item no-results">Server connection failed</div>';
+        }
+      }
+
+      loadStudents();
+
+      // Search and Filter Logic
+      studentSearchInput.addEventListener('focus', () => studentDropdown.classList.add('show'));
+      
+      document.addEventListener('click', (e) => {
+        if (!document.getElementById('studentSearchContainer').contains(e.target)) {
+          studentDropdown.classList.remove('show');
+        }
+      });
+
+      studentSearchInput.addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const items = studentDropdown.querySelectorAll('.dropdown-item');
+        let hasResults = false;
+
+        items.forEach(item => {
+          if (item.classList.contains('no-results')) {
+            item.remove();
+            return;
+          }
+          const text = item.innerText.toLowerCase();
+          if (text.includes(filter)) {
+            item.style.display = 'block';
+            hasResults = true;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+
+        if (!hasResults && filter !== '') {
+          if (!studentDropdown.querySelector('.no-results')) {
+            const noRes = document.createElement('div');
+            noRes.className = 'dropdown-item no-results';
+            noRes.innerText = 'No students found';
+            studentDropdown.appendChild(noRes);
+          }
+        }
+      });
+
+      studentDropdown.addEventListener('click', function(e) {
+        if (e.target.classList.contains('dropdown-item') && !e.target.classList.contains('no-results')) {
+          const val = e.target.dataset.value;
+          const text = e.target.innerText;
+          
+          studentSearchInput.value = text;
+          studentSelect.value = val;
+          studentDropdown.classList.remove('show');
+          
+          checkSelection();
+        }
+      });
+ 
+      window.checkSelection = async function() {
+        const studentSelect = document.getElementById('studentSelect');
+        const yearSelect = document.getElementById('yearSelect');
+        const examSelect = document.getElementById('examSelect');
+        const studentSearchInput = document.getElementById('studentSearchInput');
+        const summaryStudent = document.getElementById('summaryStudent');
+        const summaryYear = document.getElementById('summaryYear');
+        const summaryExam = document.getElementById('summaryExam');
+        const marksContent = document.getElementById('marksContent');
+        
+        const studentId = studentSelect.value;
+        const year = yearSelect.value;
+        const examType = examSelect.options[examSelect.selectedIndex].text;
+ 
+        if (studentId && year && examSelect.value) {
+          // Update summary fields
+          summaryStudent.innerText = studentSearchInput.value;
+          summaryYear.innerText = year;
+          summaryExam.innerText = examType;
+          marksContent.style.display = 'block';
+ 
+          // Check for history
+          await loadHistory();
+        } else {
+          marksContent.style.display = 'none';
+        }
+      }
+ 
+      window.loadHistory = async function() {
+        const studentSelect = document.getElementById('studentSelect');
+        const yearSelect = document.getElementById('yearSelect');
+        const examSelect = document.getElementById('examSelect');
+        const studentId = studentSelect.value;
+        const year = yearSelect.value;
+        const examType = examSelect.options[examSelect.selectedIndex].text;
+        const historyContent = document.getElementById('historyContent');
+        const entrySection = document.getElementById('entrySection');
+        const historyBody = document.getElementById('historyBody');
+ 
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`${API_URL}/marks/student/${studentId}?semester=${year}&exam_type=${examType}&view_all=true`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+ 
+          if (response.ok) {
+            const marks = await response.json();
+            if (marks.length > 0) {
+              // Data exists - show history
+              historyContent.style.display = 'block';
+              entrySection.style.display = 'none';
+ 
+              let html = '';
+              marks.forEach(m => {
+                html += `
+                  <tr>
+                    <td>${m.course_code}</td>
+                    <td>${m.course_name || '-'}</td>
+                    <td style="font-weight: 600;">${m.mark}</td>
+                    <td><span class="badge" style="background:#f1f5f9; color:#475569;">${m.course_type}</span></td>
+                    <td>
+                      <button class="delete-record-btn" onclick="deleteHistoryMark('${m.id}')">
+                        <i class="fa-solid fa-trash-can"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              });
+               historyBody.innerHTML = html;
+
+               // Update the dynamic toggle button
+               const anyPublished = marks.some(m => m.published);
+               const toggleBtn = document.getElementById('historyToggleBtn');
+               if (anyPublished) {
+                 toggleBtn.innerText = 'Remove Student';
+                 toggleBtn.style.backgroundColor = '#ef4444';
+                 toggleBtn.style.borderColor = '#ef4444';
+                 toggleBtn.className = 'btn btn-publish'; // using existing class for styling
+               } else {
+                 toggleBtn.innerText = 'Show Student';
+                 toggleBtn.style.backgroundColor = ''; // Reset to default
+                 toggleBtn.style.borderColor = '';
+                 toggleBtn.className = 'btn btn-publish'; 
+               }
+             } else {
+              // No data - show entry form
+              historyContent.style.display = 'none';
+              entrySection.style.display = 'block';
+            }
+          }
+        } catch (err) {
+          console.error('History Fetch Error:', err);
+          historyContent.style.display = 'none';
+          entrySection.style.display = 'block';
+        }
+      }
+
+      window.editExistingMarks = async function() {
+        const studentId = studentSelect.value;
+        const year = yearSelect.value;
+        const examType = examSelect.options[examSelect.selectedIndex].text;
+        const list = document.getElementById('recordList');
+        
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`${API_URL}/marks/student/${studentId}?semester=${year}&exam_type=${examType}&view_all=true`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          if (response.ok) {
+            const marks = await response.json();
+            list.innerHTML = ''; // Clear existing cards
+            
+            if (marks.length > 0) {
+              marks.forEach(m => {
+                const card = addNewRecord();
+                card.querySelector('.course-code').value = m.course_code;
+                card.querySelector('.course-name').value = m.course_name || '';
+                card.querySelector('.course-type').value = m.course_type;
+                card.querySelector('.student-mark').value = m.mark;
+              });
+            } else {
+              addNewRecord(); // At least one blank card
+            }
+            
+            document.getElementById('historyContent').style.display = 'none';
+            document.getElementById('entrySection').style.display = 'block';
+          }
+        } catch (err) {
+          console.error('Edit Fetch Error:', err);
+          showToast('Error loading records for edit', 'error');
+        }
+      };
+
+      window.publishToStudent = async function() {
+        const studentRaw = studentSearchInput.value;
+        const studentName = studentRaw.split('(')[0].trim();
+        
+        // Triggers the save operation first with is_publish: true (explicitly)
+        const success = await saveMarks(true); 
+        
+        if (success) {
+          showToast(`Successfully published to ${studentName}`);
+        }
+      };
+
+      window.removeStudentMarks = async function() {
+        const studentId = studentSelect.value;
+        const year = yearSelect.value;
+        const examType = examSelect.options[examSelect.selectedIndex].text;
+        const studentRaw = studentSearchInput.value;
+        const studentName = studentRaw.split('(')[0].trim();
+
+        if (!confirm(`Are you sure you want to hide marks for ${studentName} from the student portal?`)) return;
+
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`${API_URL}/marks/batch-delete?student_id=${studentId}&semester=${year}&exam_type=${examType}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            showToast(`Successfully hidden results from ${studentName}`);
+            await loadHistory(); 
+          } else {
+            showToast("Failed to hide marks.", "error");
+          }
+        } catch (err) {
+          console.error('Remove Marks Error:', err);
+          showToast("Failed to connect to server.", "error");
+        }
+      };
+
+      window.toggleHistoryPublish = async function() {
+        const toggleBtn = document.getElementById('historyToggleBtn');
+        const isCurrentlyPublished = toggleBtn.innerText === 'Remove Student';
+
+        if (isCurrentlyPublished) {
+          await removeStudentMarks();
+        } else {
+          await publishToStudent();
+        }
+      };
+
+      window.deleteHistoryMark = async function(markId) {
+        const studentId = studentSelect.value;
+        if (!studentId) {
+          showToast('Student selection not found', 'error');
+          return;
+        }
+        if (!confirm('Are you sure you want to delete this mark entry?')) return;
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`${API_URL}/marks/${markId}?student_id=${studentId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (response.ok) {
+            showToast('Mark deleted successfully');
+            loadHistory();
+          } else {
+            showToast('Error deleting mark', 'error');
+          }
+        } catch (err) {
+          showToast('Failed to connect to server', 'error');
+        }
+      };
+
+      yearSelect.addEventListener('change', checkSelection);
+      examSelect.addEventListener('change', checkSelection);
+    });
+
+    function updateRecordCount() {
+      const count = document.getElementById('recordList').children.length;
+      document.getElementById('recordCountBadge').innerText = `${count} Total`;
+    }
+
+    function addNewRecord() {
+      const list = document.getElementById('recordList');
+      const index = list.children.length;
+      const card = document.createElement('div');
+      card.className = 'record-card';
+      card.dataset.index = index;
+
+      const sno = (index + 1).toString().padStart(2, '0');
+
+      card.innerHTML = `
+        <div class="card-top">
+          <span class="record-label">Entry #${sno}</span>
+          <button class="delete-record-btn" onclick="deleteRecord(this)"><i class="fa-solid fa-trash-can"></i></button>
+        </div>
+        <div class="record-form-grid">
+          <div class="field-group">
+            <label class="field-label">Course Code</label>
+            <input type="text" class="input-style course-code" placeholder="e.g. CS8501">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Course Name</label>
+            <input type="text" class="input-style course-name" placeholder="Enter course name">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Course Type</label>
+            <select class="input-style course-type" style="padding: 8px 10px; cursor: pointer;">
+              <option value="Theory">Theory</option>
+              <option value="Lab">Lab</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Mark</label>
+            <input type="number" class="input-style student-mark" placeholder="0-100">
+          </div>
+        </div>
+      `;
+      list.appendChild(card);
+      updateRecordCount();
+      return card; // Return the card for programmatic population
+      // Scroll to the new card
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function deleteRecord(btn) {
+      const card = btn.closest('.record-card');
+      card.remove();
+
+      // Re-index labels
+      const list = document.getElementById('recordList');
+      Array.from(list.children).forEach((child, i) => {
+        const sno = (i + 1).toString().padStart(2, '0');
+        child.querySelector('.record-label').innerText = `Entry #${sno}`;
+      });
+
+      updateRecordCount();
+    }
+
+    async function saveMarks(targetPublishStatus) {
+      // Ensure targetPublishStatus is specifically true, otherwise default to false
+      const shouldPublish = (targetPublishStatus === true);
+      
+      const records = [];
+      const cards = document.querySelectorAll('.record-card');
+      const studentSelect = document.getElementById('studentSelect');
+
+      if (!studentSelect.value) {
+        showToast("Please select a student first.", "error");
+        return;
+      }
+
+      if (cards.length === 0) {
+        showToast("Please add at least one record before saving.", "error");
+        return;
+      }
+
+      // Prepare batch data
+      const batchData = {
+         student_id: studentSelect.value,
+         semester: document.getElementById('yearSelect').value,
+         exam_type: document.getElementById('examSelect').options[document.getElementById('examSelect').selectedIndex].text,
+         records: [],
+         is_publish: shouldPublish
+       };
+
+      let allFilled = true;
+      cards.forEach(card => {
+        const courseCode = card.querySelector('.course-code').value;
+        const mark = card.querySelector('.student-mark').value;
+
+        if (!courseCode || !mark) {
+          allFilled = false;
+        }
+
+        batchData.records.push({
+          course_code: courseCode,
+          course_name: card.querySelector('.course-name').value,
+          course_type: card.querySelector('.course-type').value,
+          mark: mark
+        });
+      });
+
+      if (!allFilled) {
+        showToast("Please fill all course codes and marks.", "error");
+        return;
+      }
+
+      // Save batch to the database
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/marks/save-batch`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(batchData)
+        });
+
+        if (response.ok) {
+          if (!shouldPublish) showToast("Marks Saved Successfully!");
+          // After saving, reload history to show the newly saved data
+          await loadHistory();
+          return true;
+        } else {
+          showToast("Failed to save marks. Please try again.", "error");
+          return false;
+        }
+      } catch (err) {
+        console.error('Save Marks Error:', err);
+        showToast("Failed to connect to server.", "error");
+        return false;
+      }
+    }
+  </script>
+</body>
+
+</html>

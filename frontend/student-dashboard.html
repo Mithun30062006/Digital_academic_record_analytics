@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <!-- Built-in styling for immediate rendering -->
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #64748b;
+            --primary-blue: #2563eb;
+            --success-green: #10b981;
+            --error-red: #ef4444;
+            --avatar-gradient: linear-gradient(135deg, #818cf8 0%, #7c3aed 100%);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --radius-md: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid #f1f5f9;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            position: relative;
+            padding-top: 40px;
+        }
+
+        .avatar-container {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+        }
+
+        .avatar-circle {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: var(--avatar-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            box-shadow: 0 8px 16px rgba(124, 58, 237, 0.2);
+        }
+
+        .profile-info {
+            text-align: left;
+            margin-top: 40px;
+        }
+
+        .profile-info h2 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 4px;
+            color: #0f172a;
+        }
+
+        .profile-info p {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .contact-list {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .contact-item .icon {
+            width: 16px;
+            color: #94a3b8;
+            text-align: center;
+        }
+
+        /* Metric Cards */
+        .metric-card {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 20px 24px;
+        }
+
+        .metric-title {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .metric-sub {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .metric-sub.success {
+            color: var(--success-green);
+        }
+
+        /* Attendance Progress */
+        .attendance-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .attendance-bar {
+            height: 100%;
+            background: var(--primary-blue);
+            border-radius: 10px;
+        }
+
+        /* Chart Card */
+        .chart-card {
+            padding: 24px;
+        }
+
+        .chart-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #0f172a;
+        }
+
+        .chart-area {
+            height: 200px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            padding: 0 10px;
+            position: relative;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .chart-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .grid-line {
+            width: 100%;
+            height: 1px;
+            background: #f1f5f9;
+            position: relative;
+        }
+
+        .grid-line::before {
+            content: attr(data-val);
+            position: absolute;
+            left: -30px;
+            top: -6px;
+            font-size: 9px;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .bar-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .bar {
+            width: 60%;
+            background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+            border-radius: 6px 6px 0 0;
+        }
+
+        .bar-label {
+            margin-top: 12px;
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+    </style>
+    <!-- Icons fallback if CDN fails -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Profile Card -->
+        <div class="card profile-card">
+            <div class="avatar-container">
+                <div class="avatar-circle">EJ</div>
+            </div>
+            <div class="profile-info">
+                <h2>Emma Johnson</h2>
+                <p>Student ID: 2023-CS-45</p>
+                <p>Batch: 2023-2027</p>
+            </div>
+            <div class="contact-list">
+                <div class="contact-item">
+                    <span class="icon"><i class="fa-regular fa-envelope"></i></span>
+                    <span>emma.johnson@university.edu</span>
+                </div>
+                <div class="contact-item">
+                    <span class="icon"><i class="fa-solid fa-phone"></i></span>
+                    <span>+1 (555) 123-4567</span>
+                </div>
+                <div class="contact-item">
+                    <span class="icon"><i class="fa-solid fa-graduation-cap"></i></span>
+                    <span>Computer Science</span>
+                </div>
+                <div class="contact-item">
+                    <span class="icon"><i class="fa-regular fa-user"></i></span>
+                    <span>2nd Year</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="card metric-card">
+            <p class="metric-title">CURRENT SGPA</p>
+            <p class="metric-value">8.75</p>
+            <p class="metric-sub success">↗ +0.2 from last sem</p>
+        </div>
+
+        <div class="card metric-card">
+            <p class="metric-title">OVERALL CGPA</p>
+            <p class="metric-value">8.68</p>
+            <p class="metric-sub">Academic Standing: First Class</p>
+        </div>
+
+        <div class="card metric-card">
+            <p class="metric-title">ATTENDANCE</p>
+            <p class="metric-value">87%</p>
+            <div class="attendance-bar-container">
+                <div class="attendance-bar" style="width: 87%;"></div>
+            </div>
+        </div>
+
+        <div class="card metric-card">
+            <p class="metric-title">ARREAR COUNT</p>
+            <p class="metric-value">2</p>
+            <p class="metric-sub">Requires immediate attention</p>
+        </div>
+
+        <!-- Academic Progress Card -->
+        <div class="card chart-card">
+            <div class="chart-header">
+                <h3>Academic Progress</h3>
+            </div>
+            <div class="chart-area">
+                <div class="chart-grid">
+                    <div class="grid-line" data-val="10"></div>
+                    <div class="grid-line" data-val="8"></div>
+                    <div class="grid-line" data-val="6"></div>
+                    <div class="grid-line" data-val="4"></div>
+                    <div class="grid-line" data-val="2"></div>
+                    <div class="grid-line" data-val="0"></div>
+                </div>
+                <div class="bar-container">
+                    <div class="bar" style="height: 82%;"></div>
+                    <span class="bar-label">SEM 1</span>
+                </div>
+                <div class="bar-container">
+                    <div class="bar" style="height: 85%;"></div>
+                    <span class="bar-label">SEM 2</span>
+                </div>
+                <div class="bar-container">
+                    <div class="bar" style="height: 80%;"></div>
+                    <span class="bar-label">SEM 3</span>
+                </div>
+                <div class="bar-container">
+                    <div class="bar" style="height: 87.5%;"></div>
+                    <span class="bar-label">SEM 4</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

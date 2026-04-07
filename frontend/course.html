@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Management - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/config.js"></script>
+    <style>
+        /* Full-screen, edge-to-edge layout override */
+        .roster-body {
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .roster-container {
+            max-width: 100% !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: none !important;
+        }
+
+        .roster-content {
+            flex: 1;
+            padding: 20px 40px !important;
+        }
+
+        .roster-topbar {
+            padding: 20px 40px !important;
+            border-radius: 0 !important;
+        }
+
+        .dc-action-btns {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .dc-edit-btn, .dc-delete-btn {
+            border: 1px solid transparent;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .dc-edit-btn {
+            background: #eff6ff;
+            color: #3b82f6;
+            border-color: #dbeafe;
+        }
+
+        .dc-edit-btn:hover {
+            background-color: #3b82f6;
+            color: #ffffff;
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .dc-delete-btn {
+            background: #fef2f2;
+            color: #ef4444;
+            border-color: #fee2e2;
+        }
+
+        .dc-delete-btn:hover {
+            background-color: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+
+        .search-group.compact-search {
+            max-width: 300px;
+            flex: 1;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .dc-create-btn.small-btn {
+            padding: 0 20px;
+            height: 40px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        /* Adjust table for better space utilization in full screen */
+        .dc-table-container {
+            margin-top: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .dc-footer {
+            padding: 20px 40px !important;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6); /* Slightly darker for better focus */
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            scrollbar-width: thin;
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-card::-webkit-scrollbar {
+            width: 5px;
+        }
+        .modal-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .modal-card::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0) scale(1);
+        }
+
+        /* Modal Header & UI */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .close-modal {
+            background: #f1f5f9;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-modal:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        /* Form Controls */
+        .modal-form-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            color: #1e293b;
+            outline: none;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        .modal-input:focus {
+            border-color: #3b82f6;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        /* Buttons */
+        .btn-base {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Specialized Alert/Confirm Styles */
+        .alert-card {
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .alert-msg {
+            font-size: 1rem;
+            color: #334155;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        /* Toast Notification Styles */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: #ffffff;
+            color: #1e293b;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            transform: translateX(120%);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            border-left: 6px solid #e2e8f0;
+        }
+
+        .toast.active {
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            background: #10b981;
+            color: #ffffff;
+            border-left-color: #059669;
+        }
+
+        .toast-error {
+            background: #ef4444;
+            color: #ffffff;
+            border-left-color: #dc2626;
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+        }
+
+        .toast-message {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Materials Popover Styles */
+        .materials-popover {
+            position: absolute;
+            width: 320px;
+            max-height: 240px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05);
+            z-index: 1000;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            display: none;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .materials-popover::-webkit-scrollbar {
+            width: 5px;
+        }
+        .materials-popover::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .materials-popover::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .materials-popover.active {
+            display: block;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .popover-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .popover-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .unit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .unit-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #eef2f6;
+        }
+
+        .unit-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .unit-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .file-status {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-status.uploaded {
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .unit-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .upload-btn, .delete-material-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .upload-btn {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .upload-btn:hover {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        .delete-material-btn {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        .delete-material-btn:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+
+        /* Edit Modal Materials Styles */
+        .modal-materials-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+        }
+        
+        .modal-materials-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+
+        .modal-unit-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        /* Custom scrollbar for unit grid */
+        .modal-unit-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-unit-grid::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .modal-unit-grid::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .modal-unit-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-unit-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .modal-file-status {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .modal-file-status.uploaded {
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .modal-unit-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .modal-action-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            font-size: 11px;
+            transition: all 0.2s;
+        }
+
+        .modal-upload-btn {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .modal-delete-btn {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+    </style>
+</head>
+
+<body class="roster-body">
+    <div class="roster-container">
+        <!-- Top Bar -->
+        <div class="roster-topbar">
+            <a href="admin.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+            <h2>Course Management</h2>
+            <div style="width: 24px;"></div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="roster-content">
+            <!-- Filter Section — Department & Semester -->
+            <div class="roster-filter-section">
+                <div class="filter-group">
+                    <label for="filterDepartment">Department</label>
+                    <div class="select-wrapper">
+                        <select id="filterDepartment" onchange="updateFilters()">
+                            <option value="" disabled selected>Choose Department...</option>
+                            <option value="eee">Electrical and Electronics Engineering</option>
+                            <option value="ece">Electronics and Communication Engineering</option>
+                            <option value="cse">Computer Science and Engineering</option>
+                            <option value="it">Information Technology</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label for="filterSemester">Semester</label>
+                    <div class="select-wrapper">
+                        <select id="filterSemester" onchange="updateFilters()">
+                            <option value="" disabled selected>Choose Semester...</option>
+                            <option value="I">I</option>
+                            <option value="II">II</option>
+                            <option value="III">III</option>
+                            <option value="IV">IV</option>
+                            <option value="V">V</option>
+                            <option value="VI">VI</option>
+                            <option value="VII">VII</option>
+                            <option value="VIII">VIII</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State (shown when no filters selected) -->
+            <div class="roster-empty-state" id="emptyState">
+                <div class="empty-state-icon">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <h3>Select Department & Semester</h3>
+                <p>Choose both a department and semester above to view and manage courses.</p>
+            </div>
+
+            <!-- Content Section (hidden until both filters selected) -->
+            <div id="contentSection" class="hidden">
+                <!-- Top Info Row -->
+                <div class="roster-header-info">
+                    <div class="info-group">
+                         <h3 class="dc-dept-name" id="displayDeptName" style="color: #1e293b; font-weight: 600; font-size: 1.1rem;">Department Courses</h3>
+                    </div>
+                    <div class="header-actions">
+                        <div class="search-group compact-search">
+                            <i class="fa-solid fa-search"></i>
+                            <input type="text" placeholder="Search..." class="roster-search"
+                                id="courseSearch" oninput="filterTable()">
+                        </div>
+                        <button class="dc-create-btn small-btn" id="createCourseBtn" onclick="navigateToCreate()">
+                            <i class="fa-solid fa-plus"></i> Create Course
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="dc-table-container">
+                    <table class="dc-table">
+                        <thead>
+                            <tr>
+                                <th>COURSE CODE</th>
+                                <th>COURSE NAME</th>
+                                <th>COURSE TYPE</th>
+                                <th>CREDIT</th>
+                                <th>FACULTY NAME</th>
+                                <th>MATERIAL</th>
+                                <th style="text-align: center;">ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody id="courseTableBody">
+                            <!-- Rows injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="dc-footer">
+            <span class="dc-footer-copy">&copy; 2024 Academic Management System</span>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Course Details</h3>
+                <button class="close-modal" onclick="closeModal('editModal')"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="editCourseId">
+                <div class="modal-form-group">
+                    <label for="editCode">Course Code</label>
+                    <input type="text" id="editCode" class="modal-input" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="editName">Course Name</label>
+                    <input type="text" id="editName" class="modal-input" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="editType">Course Type</label>
+                    <select id="editType" class="modal-input" required>
+                        <option value="Theory">Theory</option>
+                        <option value="Theory with Lab">Theory with Lab</option>
+                    </select>
+                </div>
+                <div class="modal-form-group">
+                    <label for="editCredit">Credit</label>
+                    <input type="number" id="editCredit" class="modal-input" min="1" max="10" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="editFaculty">Faculty Name</label>
+                    <input type="text" id="editFaculty" class="modal-input" required>
+                </div>
+
+                <!-- Materials Section in Modal -->
+                <div class="modal-materials-section">
+                    <h4 class="modal-materials-title">Course Materials (Units 1-5)</h4>
+                    <div class="modal-unit-grid" id="modalUnitGrid">
+                        <!-- Units will be rendered here -->
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-base btn-secondary" onclick="closeModal('editModal')">Cancel</button>
+                    <button type="submit" class="btn-base btn-primary">Update Course</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Alert/Confirm Modal -->
+    <div class="modal-overlay" id="customAlertModal">
+        <div class="modal-card alert-card">
+            <h3 class="modal-title" id="alertTitle" style="margin-bottom: 15px;">Success</h3>
+            <p class="alert-msg" id="alertMessage">Action completed successfully.</p>
+            <div class="modal-footer" style="justify-content: center; margin-top: 10px;">
+                <button type="button" id="alertCancelBtn" class="btn-base btn-secondary hidden">Cancel</button>
+                <button type="button" id="alertConfirmBtn" class="btn-base btn-primary">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Materials Popover -->
+    <div class="materials-popover" id="materialsPopover">
+        <div class="popover-header">
+            <h4 class="popover-title">Course Materials</h4>
+            <button class="close-modal" style="width: 24px; height: 24px; font-size: 12px;" onclick="closeMaterialsPopover()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <div class="unit-list" id="unitList">
+            <!-- Units 1-5 will be rendered by JS -->
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let courseData = [];
+        const deptMapping = {
+            'eee': 'Electrical and Electronics Engineering',
+            'ece': 'Electronics and Communication Engineering',
+            'cse': 'Computer Science and Engineering',
+            'it': 'Information Technology'
+        };
+
+        // Initialize from URL params on load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Auth check
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            if (!token || role !== 'admin') {
+                alert('Access denied. Admin login required.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const dept = urlParams.get('deptId');
+            const sem = urlParams.get('semesterId');
+
+            if (dept) document.getElementById('filterDepartment').value = dept;
+            if (sem) document.getElementById('filterSemester').value = sem;
+
+            if (dept && sem) {
+                checkFilters();
+            }
+        });
+
+        function updateFilters() {
+            const dept = document.getElementById('filterDepartment').value;
+            const sem = document.getElementById('filterSemester').value;
+
+            // Sync URL params for state persistence
+            const url = new URL(window.location);
+            if (dept) url.searchParams.set('deptId', dept);
+            if (sem) url.searchParams.set('semesterId', sem);
+            window.history.replaceState({}, '', url);
+
+            checkFilters();
+        }
+
+        function checkFilters() {
+            const dept = document.getElementById('filterDepartment').value;
+            const sem = document.getElementById('filterSemester').value;
+            const emptyState = document.getElementById('emptyState');
+            const contentSection = document.getElementById('contentSection');
+
+            if (dept && sem) {
+                emptyState.classList.add('hidden');
+                contentSection.classList.remove('hidden');
+
+                const mappedDept = deptMapping[dept] || dept;
+                document.getElementById('displayDeptName').textContent = `${mappedDept} - Semester ${sem}`;
+                
+                fetchCourses(dept, sem);
+            } else {
+                emptyState.classList.remove('hidden');
+                contentSection.classList.add('hidden');
+            }
+        }
+
+        async function fetchCourses(deptId, sem) {
+            try {
+                const tbody = document.getElementById('courseTableBody');
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px; color: #3b82f6; font-weight: 600;">Loading courses...</td></tr>';
+                
+                const token = localStorage.getItem('token');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch(`${API_URL}/departments/${deptId}/courses?semesterId=${sem}`, { headers });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch courses');
+                }
+
+                const data = await response.json();
+                
+                courseData = (data.courses || []).map(c => ({
+                    ...c,
+                    department: data.departmentName || deptMapping[deptId],
+                    semester: sem
+                }));
+                
+                renderTable();
+
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                document.getElementById('courseTableBody').innerHTML = `
+                    <tr><td colspan="7">
+                        <p class="error-msg" style="text-align: center; color: #ef4444; padding: 20px;">${error.message || 'Failed to load courses.'}</p>
+                    </td></tr>`;
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('courseTableBody');
+            const query = document.getElementById('courseSearch').value.toLowerCase();
+            
+            const filtered = courseData.filter(c => 
+                c.name.toLowerCase().includes(query) || 
+                c.code.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px; color: #64748b;">No courses found for this criteria.</td></tr>';
+                 return;
+            }
+
+            tbody.innerHTML = filtered.map(course => `
+                <tr>
+                    <td style="font-weight: 500;">${course.code}</td>
+                    <td>${course.name}</td>
+                    <td><span class="dc-type-badge">${course.type}</span></td>
+                    <td style="text-align: center;">${course.credit}</td>
+                    <td>${course.faculty}</td>
+                    <td>
+                        <div style="display: flex; justify-content: flex-start; padding-left: 10px;">
+                            <i class="fa-solid fa-book" style="color: #3b82f6; font-size: 1.1rem; cursor: pointer;" 
+                               title="View Material" onclick="toggleMaterialsPopover('${course._id}', event)"></i>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="dc-action-btns">
+                            <button class="dc-edit-btn" title="Edit Course" onclick="openEditModal('${course._id}')">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button class="dc-delete-btn" title="Delete Course" onclick="confirmDelete('${course._id}')">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterTable() {
+            renderTable();
+        }
+
+        function navigateToCreate() {
+            const dept = document.getElementById('filterDepartment').value;
+            const sem = document.getElementById('filterSemester').value;
+            if (dept && sem) {
+                window.location.href = `add-course.html?deptId=${dept}&semesterId=${sem}`;
+            } else {
+                window.location.href = `add-course.html`;
+            }
+        }
+
+        // ---- Toast System ----
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+            
+            toast.innerHTML = `
+                <i class="fa-solid ${icon} toast-icon"></i>
+                <span class="toast-message">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('active'), 10);
+            
+            // Auto hide
+            setTimeout(() => {
+                toast.classList.remove('active');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // Custom Dialog Logic
+        function showCustomAlert(title, message, type = 'success', isConfirm = false) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('customAlertModal');
+                const titleEl = document.getElementById('alertTitle');
+                const msgEl = document.getElementById('alertMessage');
+                const confirmBtn = document.getElementById('alertConfirmBtn');
+                const cancelBtn = document.getElementById('alertCancelBtn');
+
+                titleEl.textContent = title;
+                msgEl.textContent = message;
+
+                // Reset button colors based on type
+                confirmBtn.className = 'btn-base btn-primary';
+                
+                if (type === 'warning') {
+                    confirmBtn.className = 'btn-base btn-danger'; // For delete confirms
+                }
+
+                if (isConfirm) {
+                    cancelBtn.classList.remove('hidden');
+                } else {
+                    cancelBtn.classList.add('hidden');
+                }
+
+                modal.classList.add('active');
+
+                const handleConfirm = () => {
+                    cleanup();
+                    resolve(true);
+                };
+                const handleCancel = () => {
+                    cleanup();
+                    resolve(false);
+                };
+                const cleanup = () => {
+                    modal.classList.remove('active');
+                    confirmBtn.removeEventListener('click', handleConfirm);
+                    cancelBtn.removeEventListener('click', handleCancel);
+                };
+
+                confirmBtn.addEventListener('click', handleConfirm);
+                cancelBtn.addEventListener('click', handleCancel);
+            });
+        }
+
+        // Modal Functions
+        function openEditModal(id) {
+            const course = courseData.find(c => c._id === id);
+            if (!course) return;
+
+            document.getElementById('editCourseId').value = course._id;
+            document.getElementById('editCode').value = course.code;
+            document.getElementById('editName').value = course.name;
+            document.getElementById('editType').value = course.type;
+            document.getElementById('editCredit').value = course.credit;
+            document.getElementById('editFaculty').value = course.faculty;
+
+            // Render materials grid
+            renderModalUnitGrid();
+            // Load existing materials
+            loadModalMaterials(course._id);
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function renderModalUnitGrid() {
+            const grid = document.getElementById('modalUnitGrid');
+            grid.innerHTML = [1, 2, 3, 4, 5].map(i => `
+                <div class="modal-unit-item">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span class="modal-unit-label">Unit ${i}</span>
+                        <span class="modal-file-status" id="modal-status-unit-${i}">No file</span>
+                    </div>
+                    <div class="modal-unit-actions">
+                        <button type="button" class="modal-action-btn modal-upload-btn" onclick="triggerModalUpload(${i})" title="Upload/Change">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </button>
+                        <button type="button" class="modal-action-btn modal-delete-btn hidden" id="modal-delete-unit-${i}" onclick="deleteModalUnitMaterial(${i})" title="Delete">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                        <input type="file" id="modal-file-unit-${i}" class="hidden-file-input" onchange="handleModalFileUpload(${i})">
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadModalMaterials(courseId) {
+            try {
+                const response = await fetch(`${API_URL}/materials/${courseId}`);
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                if (data.units) {
+                    data.units.forEach(unit => {
+                        updateModalUnitUI(unit.unitNumber, unit.fileName, unit.filePath);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading modal materials:', err);
+            }
+        }
+
+        function updateModalUnitUI(unitNum, fileName, filePath) {
+            const statusEl = document.getElementById(`modal-status-unit-${unitNum}`);
+            const deleteBtn = document.getElementById(`modal-delete-unit-${unitNum}`);
+            if (statusEl) {
+                statusEl.innerHTML = `<a href="${BASE_URL}/${filePath}" target="_blank" style="color: #3b82f6; text-decoration: none;">${fileName}</a>`;
+                statusEl.classList.add('uploaded');
+            }
+            if (deleteBtn) deleteBtn.classList.remove('hidden');
+        }
+
+        function triggerModalUpload(unitNum) {
+            document.getElementById(`modal-file-unit-${unitNum}`).click();
+        }
+
+        async function handleModalFileUpload(unitNum) {
+            const courseId = document.getElementById('editCourseId').value;
+            const fileInput = document.getElementById(`modal-file-unit-${unitNum}`);
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('courseId', courseId);
+            formData.append('unitNumber', unitNum);
+            formData.append('material', file);
+
+            try {
+                const response = await fetch(`${API_URL}/materials/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    showToast(`Unit ${unitNum} updated!`, 'success');
+                    const updated = await response.json();
+                    // Find the updated unit in the response
+                    const unit = updated.material.units.find(u => u.unitNumber === unitNum);
+                    updateModalUnitUI(unitNum, unit.fileName, unit.filePath);
+                } else {
+                    showToast('Upload failed', 'error');
+                }
+            } catch (err) {
+                showToast('Network error', 'error');
+            } finally {
+                fileInput.value = '';
+            }
+        }
+
+        async function deleteModalUnitMaterial(unitNum) {
+            const courseId = document.getElementById('editCourseId').value;
+            if (!confirm(`Delete Unit ${unitNum} material?`)) return;
+
+            try {
+                const response = await fetch(`${API_URL}/materials/${courseId}/${unitNum}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showToast(`Unit ${unitNum} material removed.`, 'success');
+                    const statusEl = document.getElementById(`modal-status-unit-${unitNum}`);
+                    const deleteBtn = document.getElementById(`modal-delete-unit-${unitNum}`);
+                    statusEl.textContent = 'No file';
+                    statusEl.classList.remove('uploaded');
+                    deleteBtn.classList.add('hidden');
+                } else {
+                    showToast('Delete failed', 'error');
+                }
+            } catch (err) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editCourseId').value;
+            const code = document.getElementById('editCode').value.trim();
+            const name = document.getElementById('editName').value.trim();
+            const type = document.getElementById('editType').value;
+            const credit = document.getElementById('editCredit').value;
+            const faculty = document.getElementById('editFaculty').value.trim();
+
+            if (!id) {
+                showToast('Invalid course ID', 'error');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/departments/courses/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ code, name, type, credit, faculty })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showToast('Course details updated successfully!', 'success');
+                    closeModal('editModal');
+                    
+                    // Refresh the table
+                    const dept = document.getElementById('filterDepartment').value;
+                    const sem = document.getElementById('filterSemester').value;
+                    if (dept && sem) {
+                        fetchCourses(dept, sem);
+                    }
+                } else {
+                    const msg = result.error || result.message || 'Failed to update course';
+                    showToast(msg, 'error');
+                }
+            } catch (err) {
+                console.error('Update Error:', err);
+                showToast('Network error or server error', 'error');
+            }
+        });
+
+        async function confirmDelete(id) {
+            const confirmed = await showCustomAlert('Confirm Delete', 'Are you sure you want to delete this course permanently?', 'warning', true);
+            if (!confirmed) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/departments/courses/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showToast('Course removed from the system.', 'success');
+                    const dept = document.getElementById('filterDepartment').value;
+                    const sem = document.getElementById('filterSemester').value;
+                    fetchCourses(dept, sem);
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to delete course', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                showCustomAlert('Network Error', 'Failed to delete course.', 'error');
+            }
+        }
+
+        // ---- Course Materials Logic ----
+        let currentCourseIdForMaterials = null;
+
+        function toggleMaterialsPopover(courseId, event) {
+            const popover = document.getElementById('materialsPopover');
+            
+            if (currentCourseIdForMaterials === courseId && popover.classList.contains('active')) {
+                closeMaterialsPopover();
+                return;
+            }
+
+            currentCourseIdForMaterials = courseId;
+            
+            // Re-render unit list initially to clear old states
+            renderUnitList();
+
+            // Position popover near the icon
+            const rect = event.currentTarget.getBoundingClientRect();
+            popover.style.top = (rect.top - 10) + 'px';
+            popover.style.left = (rect.left + 30) + 'px';
+
+            // Adjust if too close to bottom or right
+            const popoverHeight = 350;
+            if (rect.top + popoverHeight > window.innerHeight) {
+                popover.style.top = (window.innerHeight - popoverHeight - 20) + 'px';
+            }
+
+            popover.classList.add('active');
+            
+            // Fetch existing materials
+            loadMaterials(courseId);
+
+            // Close on click outside
+            const clickOutside = (e) => {
+                const popover = document.getElementById('materialsPopover');
+                const trigger = event.currentTarget;
+                if (popover && !popover.contains(e.target) && trigger && !trigger.contains(e.target)) {
+                    closeMaterialsPopover();
+                    document.removeEventListener('click', clickOutside);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', clickOutside), 10);
+        }
+
+        function closeMaterialsPopover() {
+            const popover = document.getElementById('materialsPopover');
+            if (popover) popover.classList.remove('active');
+            currentCourseIdForMaterials = null;
+        }
+
+        function renderUnitList() {
+            const container = document.getElementById('unitList');
+            if (!container) return;
+            
+            container.innerHTML = [1, 2, 3, 4, 5].map(i => `
+                <div class="unit-item">
+                    <div class="unit-info" style="width: 100%;">
+                        <span class="unit-label">Unit ${i}</span>
+                        <span class="file-status" id="status-unit-${i}">No file</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadMaterials(courseId) {
+            try {
+                const response = await fetch(API_URL + '/materials/' + courseId);
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                if (data.units && data.units.length > 0) {
+                    data.units.forEach(unit => {
+                        const statusEl = document.getElementById('status-unit-' + unit.unitNumber);
+                        if (statusEl) {
+                            statusEl.innerHTML = '<a href="' + BASE_URL + '/' + unit.filePath + '" target="_blank" style="color: #3b82f6; text-decoration: none;">' + unit.fileName + '</a>';
+                            statusEl.classList.add('uploaded');
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading materials:', err);
+            }
+        }
+    </script>
+</body>
+
+</html>

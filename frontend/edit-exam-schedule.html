@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Schedule</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/edit-exam.css">
+</head>
+
+<body>
+    <div class="edit-container">
+        <!-- Header -->
+        <header class="edit-header">
+            <div class="header-left">
+                <a href="exam-schedule.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+                <h1 class="page-title">Edit Schedule</h1>
+            </div>
+            <button class="options-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+        </header>
+
+        <!-- Department Information Card -->
+        <section class="dept-card" id="deptInfoCard">
+            <div class="dept-info-wrapper">
+                <div class="dept-icon">
+                    <i class="fa-solid fa-desktop"></i>
+                </div>
+                <div class="dept-details">
+                    <h2 id="displayDeptName">Computer Science & Engineering</h2>
+                    <p id="displaySubDept">Department of Engineering</p>
+                </div>
+            </div>
+            <div class="dept-stats">
+                <div class="stat-item">YEAR : <span id="displayYear">III</span></div>
+                <div class="stat-item">EXAM TYPE : <span id="displayExamType">HALF 1</span></div>
+            </div>
+        </section>
+
+        <!-- Exam Subjects Section -->
+        <div class="section-header">
+            <h3 class="section-title">EXAM SUBJECTS</h3>
+            <span class="badge" id="subjectCountBadge">0 Total</span>
+        </div>
+
+        <div class="subject-list" id="subjectList">
+            <!-- Subject cards will be injected here -->
+        </div>
+
+        <!-- Add New Subject Button Area -->
+        <button class="add-subject-btn" onclick="addNewSubjectCard()">
+            <i class="fa-solid fa-circle-plus"></i>
+            Add New Subject
+        </button>
+
+        <!-- Bottom Action Buttons Group -->
+        <div class="footer-actions">
+            <button class="btn btn-cancel" onclick="window.location.href='exam-schedule.html'">Cancel</button>
+            <button class="btn btn-cancel" style="background: white; border: 1.5px solid var(--primary-orange); color: var(--primary-orange);" onclick="saveChanges()">Save Changes</button>
+            <button class="btn btn-save" id="publishToggleBtn" onclick="viewStudents()">Show Student</button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainerRight" class="toast-container right"></div>
+
+    <script>
+        let scheduleData = {
+            entries: []
+        };
+
+        // Load data on start
+        window.onload = function () {
+            const savedData = localStorage.getItem('savedSchedule');
+            if (savedData) {
+                scheduleData = JSON.parse(savedData);
+                renderPage();
+            } else {
+                // Default fallback if no data
+                renderPage();
+            }
+        };
+
+        function renderPage() {
+            document.getElementById('displayDeptName').innerText = scheduleData.department || "Computer Science & Engineering";
+            document.getElementById('displayYear').innerText = scheduleData.year || "III";
+            document.getElementById('displayExamType').innerText = scheduleData.examType || "HALF 1";
+
+
+            const list = document.getElementById('subjectList');
+            list.innerHTML = '';
+
+            scheduleData.entries.forEach((entry, index) => {
+                createSubjectCard(entry, index);
+            });
+            updateSubjectCount();
+
+            // Toggle Show/Remove Student button
+            const toggleBtn = document.getElementById('publishToggleBtn');
+            if (scheduleData.published) {
+                toggleBtn.innerHTML = '<i class="fa-solid fa-user-slash" style="margin-right: 8px;"></i>Remove Student';
+                toggleBtn.style.background = '#ef4444'; // Red for remove
+            } else {
+                toggleBtn.innerHTML = '<i class="fa-solid fa-user-graduate" style="margin-right: 8px;"></i>Show Student';
+                toggleBtn.style.background = ''; // Revert to default
+            }
+        }
+
+        function createSubjectCard(entry, index) {
+            const list = document.getElementById('subjectList');
+            const card = document.createElement('div');
+            card.className = 'subject-card';
+            card.dataset.index = index;
+
+            const sno = (index + 1).toString().padStart(2, '0');
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="subject-label">Subject ${sno}</span>
+                    <button class="delete-btn" onclick="deleteCard(${index})"><i class="fa-solid fa-trash-can"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="row-1">
+                        <div class="field-group">
+                            <label class="field-label">Exam Name</label>
+                            <input type="text" class="input-style subject-name" value="${entry.subject || ''}" placeholder="Enter subject name">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Venue</label>
+                            <input type="text" class="input-style subject-venue" value="${entry.venue || ''}" placeholder="Enter venue">
+                        </div>
+                    </div>
+                    <div class="row-2">
+                        <div class="field-group">
+                            <label class="field-label">Date</label>
+                            <div class="input-with-icon">
+                                <input type="date" class="input-style subject-date" value="${entry.date || ''}" onclick="this.showPicker()">
+                                <i class="fa-regular fa-calendar"></i>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">From</label>
+                            <div class="input-with-icon">
+                                <input type="time" class="input-style subject-from" value="${entry.from || ''}" onclick="this.showPicker()">
+                                <i class="fa-regular fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">To</label>
+                            <div class="input-with-icon">
+                                <input type="time" class="input-style subject-to" value="${entry.to || ''}" onclick="this.showPicker()">
+                                <i class="fa-regular fa-clock"></i>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">Session</label>
+                            <div class="session-toggle">
+                                <button class="toggle-btn ${entry.session === 'FN' ? 'active' : ''}" onclick="setSession(this, 'FN')">FN</button>
+                                <button class="toggle-btn ${entry.session === 'AN' ? 'active' : ''}" onclick="setSession(this, 'AN')">AN</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            list.appendChild(card);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainerRight');
+            const toast = document.createElement('div');
+            
+            const iconClass = type === 'error' ? 'fa-solid fa-triangle-exclamation' : 'fa-solid fa-circle-check';
+            const animationClass = 'slide-in-right';
+            
+            toast.className = `toast ${type} ${animationClass}`;
+            toast.innerHTML = `
+                <i class="${iconClass}"></i>
+                <span class="toast-message">${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function addNewSubjectCard() {
+            const newEntry = {
+                subject: '',
+                date: '',
+                from: '',
+                to: '',
+                venue: '',
+                session: 'FN'
+            };
+
+            scheduleData.entries.push(newEntry);
+            createSubjectCard(newEntry, scheduleData.entries.length - 1);
+            updateSubjectCount();
+
+            // Scroll to bottom
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function syncEntriesData() {
+            const cards = document.querySelectorAll('.subject-card');
+            cards.forEach((card, index) => {
+                if (scheduleData.entries[index]) {
+                    scheduleData.entries[index].subject = card.querySelector('.subject-name').value;
+                    scheduleData.entries[index].date = card.querySelector('.subject-date').value;
+                    scheduleData.entries[index].from = card.querySelector('.subject-from').value;
+                    scheduleData.entries[index].to = card.querySelector('.subject-to').value;
+                    scheduleData.entries[index].venue = card.querySelector('.subject-venue').value;
+                }
+            });
+        }
+
+
+        function deleteCard(index) {
+            syncEntriesData();
+            scheduleData.entries.splice(index, 1);
+            renderPage();
+        }
+
+
+        function setSession(btn, type) {
+            const container = btn.parentElement;
+            container.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Update in local array
+            const card = btn.closest('.subject-card');
+            const index = card.dataset.index;
+            scheduleData.entries[index].session = type;
+        }
+
+        function updateSubjectCount() {
+            const count = scheduleData.entries.length;
+            document.getElementById('subjectCountBadge').innerText = `${count} Total`;
+        }
+
+        async function saveChanges() {
+            syncEntriesData();
+
+            // Validation: Ensure all fields are filled for all entries
+            for (let i = 0; i < scheduleData.entries.length; i++) {
+                const entry = scheduleData.entries[i];
+                if (!entry.subject || !entry.date || !entry.from || !entry.to || !entry.venue) {
+                    showToast('Please fill all fields for all rows.', 'error');
+                    return;
+                }
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:3000/api/exam-schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(scheduleData)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    scheduleData = result.schedule; // Update local data with DB _id and status
+                    showToast('Schedule changes saved successfully!');
+                    localStorage.setItem('savedSchedule', JSON.stringify(scheduleData));
+                } else {
+                    const error = await response.json();
+                    showToast('Error saving to database: ' + (error.error || error.message || 'Unknown error'), 'error');
+                }
+            } catch (err) {
+                console.error('API Error:', err);
+                showToast('Failed to connect to the server.', 'error');
+            }
+        }
+
+
+        async function viewStudents() {
+            const dept = scheduleData.department;
+            const year = scheduleData.year;
+            if (!dept || !year) {
+                showToast('Schedule data is not loaded correctly.', 'error');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+
+            // If already published, offer to remove (unpublish)
+            if (scheduleData.published) {
+                if (!confirm('This schedule is visible to students. Do you want to remove it from their view?')) return;
+
+                try {
+                    const unpubRes = await fetch(`http://localhost:3000/api/exam-schedule/${scheduleData._id}/unpublish`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (unpubRes.ok) {
+                        scheduleData.published = false;
+                        localStorage.setItem('savedSchedule', JSON.stringify(scheduleData));
+                        showToast('Schedule removed from student view.');
+                        renderPage(); // Refresh UI
+                    } else {
+                        const error = await unpubRes.json();
+                        showToast('Error removing schedule: ' + (error.error || error.message || 'Unknown error'), 'error');
+                    }
+                } catch (err) {
+                    console.error('Unpublish Error:', err);
+                    showToast('Failed to remove schedule from student view.', 'error');
+                }
+                return;
+            }
+
+            // If not published, publish now
+            if (!scheduleData.published) {
+                try {
+                    // We need the _id to publish. If we don't have it, we must save first.
+                    if (!scheduleData._id) {
+                        await saveChanges();
+                        if (!scheduleData._id) return; // Save failed
+                    }
+
+                    const pubRes = await fetch(`http://localhost:3000/api/exam-schedule/${scheduleData._id}/publish`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (pubRes.ok) {
+                        scheduleData.published = true;
+                        localStorage.setItem('savedSchedule', JSON.stringify(scheduleData));
+                        
+                        // User requested specific message format
+                        const msg = `Exam scheduled to ${dept} ${year}`;
+                        showToast(msg);
+                        
+                        renderPage(); // Refresh UI
+                    } else {
+                        const error = await pubRes.json();
+                        showToast('Error publishing: ' + (error.error || error.message || 'Unknown error'), 'error');
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Publish Error:', err);
+                    showToast('Failed to publish schedule.', 'error');
+                    return;
+                }
+            }
+
+            // After publishing, we could navigate to student list if desired,
+            // but the user's request emphasized the button toggle.
+            // window.location.href = `student-list.html?dept=${encodeURIComponent(dept)}&semester=${encodeURIComponent(year)}`;
+        }
+
+        function viewSubjectStudents(index) {
+            const subject = scheduleData.entries[index].subject || 'this subject';
+            showToast(`Showing students for ${subject}`);
+        }
+
+        async function deleteSchedule() {
+            if (!scheduleData._id) {
+                showToast('No schedule found in database to delete.', 'error');
+                return;
+            }
+            if (!confirm('Are you sure you want to delete this ENTIRE schedule history? This cannot be undone.')) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`http://localhost:3000/api/exam-schedule/${scheduleData._id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    showToast('Schedule deleted successfully');
+                    setTimeout(() => {
+                        window.location.href = 'exam-schedule.html';
+                    }, 1500);
+                } else {
+                    const error = await response.json();
+                    showToast('Error deleting schedule: ' + (error.error || error.message || 'Unknown error'), 'error');
+                }
+            } catch (err) {
+                console.error('Delete API Error:', err);
+                showToast('Failed to delete schedule.', 'error');
+            }
+        }
+    </script>
+    <script>
+        // Role check to prevent unauthorized access
+        (function() {
+          const role = localStorage.getItem('role');
+          const token = localStorage.getItem('token');
+          if (!token || role !== 'admin') {
+            alert('Access Denied: Admin privileges required.');
+            window.location.href = 'index.html';
+          }
+        })();
+    </script>
+</body>
+
+</html>

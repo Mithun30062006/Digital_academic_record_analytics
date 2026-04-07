@@ -1,75 +1,116 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
 </head>
+
 <body>
-  <div class="container">
-    <h1>Admin Dashboard</h1>
-    <div>
-      <button id="logout">Logout</button>
-    </div>
-
-    <section>
-      <h2>Students</h2>
-      <form id="student-form">
-        <input name="student_number" placeholder="Student Number" required />
-        <input name="first_name" placeholder="First name" required />
-        <input name="last_name" placeholder="Last name" required />
-        <input name="password" placeholder="Password" />
-        <button type="submit">Add Student</button>
-      </form>
-      <table id="students-table"></table>
-    </section>
-
-    <section>
-      <h2>Subjects</h2>
-      <form id="subject-form">
-        <input name="code" placeholder="Code" required />
-        <input name="name" placeholder="Name" required />
-        <input name="credits" placeholder="Credits" type="number" />
-        <button type="submit">Add Subject</button>
-      </form>
-      <table id="subjects-table"></table>
-    </section>
-
-    <section>
-      <h2>Marks</h2>
-      <form id="marks-form">
-        <input name="student_id" placeholder="Student ID" required />
-        <input name="subject_id" placeholder="Subject ID" required />
-        <input name="exam_year" placeholder="Year" required />
-        <input name="marks" placeholder="Marks" required type="number" />
-        <button type="submit">Add Marks</button>
-      </form>
-      <table id="marks-table"></table>
-    </section>
-
-    <section>
-      <h2>Reports & Charts</h2>
-      <div class="card">
-        <h3>Topper (Class)</h3>
-        <div id="topper-info"></div>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <h2 class="logo-title">Mithun</h2>
+        <nav class="menu">
+          <a href="#" class="menu-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Dashboard</span>
+          </a>
+        </nav>
       </div>
-      <div class="card">
-        <h3>Pass / Fail Percentage</h3>
-        <canvas id="passfailChart" width="400" height="200"></canvas>
+      <div class="sidebar-bottom">
+        <a href="#" class="menu-item logout">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span>Logout</span>
+        </a>
       </div>
-      <div class="card">
-        <h3>Subject Stats</h3>
-        <input id="subject-stats-id" placeholder="Subject ID for stats" />
-        <button id="load-subject-stats">Load Subject Stats</button>
-        <canvas id="subjectStatsChart" width="400" height="200"></canvas>
-        <div id="subject-stats-info"></div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="header">
+        <div class="header-left">
+          <h1>Welcome back, Mithun</h1>
+        </div>
+        <div class="header-right">
+          <div class="avatar">
+            <img src="https://ui-avatars.com/api/?name=Mithun&background=0284c7&color=fff&rounded=true" alt="Avatar">
+          </div>
+        </div>
+      </header>
+
+      <div class="content-sections">
+        <!-- Section 1 -->
+        <section class="section">
+          <h3 class="section-title">GENERAL ACTIONS</h3>
+          <div class="cards-grid">
+            <div class="card" onclick="window.location.href='academic.html'">
+              <div class="icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </div>
+              <span class="card-label">Enter Marks</span>
+            </div>
+            <div class="card" onclick="window.location.href='attendance-roster.html'">
+              <div class="icon-wrapper" style="background-color: #fce7f3; color: #db2777;">
+                <i class="fa-solid fa-clipboard-user"></i>
+              </div>
+              <span class="card-label">Attendance Tracker</span>
+            </div>
+            <div class="card" onclick="window.location.href='course.html'">
+              <div class="icon-wrapper" style="background-color: #fef08a; color: #ca8a04;">
+                <i class="fa-solid fa-book"></i>
+              </div>
+              <span class="card-label">Course</span>
+            </div>
+            <div class="card" onclick="window.location.href='exam-schedule.html'">
+              <div class="icon-wrapper" style="background-color: #e0e7ff; color: #4f46e5;">
+                <i class="fa-solid fa-file-lines"></i>
+              </div>
+              <span class="card-label">Exam</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 2 -->
+        <section class="section">
+          <h3 class="section-title">STUDENT MANAGEMENT</h3>
+          <div class="cards-grid">
+            <!--
+            <div class="card" onclick="window.location.href='student-list.html'">
+              <div class="icon-wrapper" style="background-color: #dcfce7; color: #16a34a;">
+                <i class="fa-solid fa-user-plus"></i>
+              </div>
+              <span class="card-label">Add Student</span>
+            </div>
+            -->
+            <div class="card" onclick="window.location.href='update-student.html'">
+              <div class="icon-wrapper" style="background-color: #e0f2fe; color: #0284c7;">
+                <i class="fa-solid fa-user-pen"></i>
+              </div>
+              <span class="card-label">Update Student</span>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </main>
   </div>
-  <script src="js/config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="js/admin.js"></script>
-  <script src="js/charts.js"></script>
+  <script>
+    // Role check to prevent unauthorized access
+    (function() {
+      const role = localStorage.getItem('role');
+      const token = localStorage.getItem('token');
+      if (!token || role !== 'admin') {
+        alert('Access Denied: Admin privileges required.');
+        window.location.href = 'index.html';
+      }
+    })();
+  </script>
 </body>
+
 </html>

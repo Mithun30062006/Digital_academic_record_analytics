@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter / Edit Marks - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg-page: #F8F9FB;
+            --white: #FFFFFF;
+            --beige-card: #FAF7F2;
+            --primary-orange: #FF8A00;
+            --primary-orange-hover: #E67C00;
+            --text-dark: #1A1C1E;
+            --text-secondary: #6B7280;
+            --text-muted: #9CA3AF;
+            --border-color: #E5E7EB;
+            --red-outline: #EF4444;
+            --gray-btn: #F3F4F6;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Header Card Style */
+        .student-header {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            margin-bottom: 40px;
+        }
+
+        .student-info-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .avatar-circle {
+            width: 56px;
+            height: 56px;
+            background-color: #F3F4F6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 24px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: auto auto auto auto;
+            gap: 32px;
+        }
+
+        .info-item .label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .info-item .value {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .menu-dots {
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .menu-dots:hover {
+            background: var(--gray-btn);
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: 0.1em;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        /* Subject Cards */
+        .subjects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .subject-card {
+            background: var(--beige-card);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s;
+        }
+
+        .subject-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .course-code-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .course-code-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-orange);
+            margin-bottom: 4px;
+        }
+
+        .course-name-bold {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .course-name-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .subject-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        select, input {
+            height: 44px;
+            padding: 0 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary-orange);
+        }
+
+        .mark-input {
+            width: 80px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Add Subject Button */
+        .add-subject-btn {
+            margin-top: 16px;
+            border: 2px dashed var(--border-color);
+            background: transparent;
+            width: 100%;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--primary-orange);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .add-subject-btn:hover {
+            border-color: var(--primary-orange);
+            background: rgba(255, 138, 0, 0.05);
+        }
+
+        .add-subject-btn i {
+            font-size: 18px;
+        }
+
+        /* Action Buttons */
+        .action-footer {
+            margin-top: 48px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .btn-cancel {
+            background: var(--gray-btn);
+            color: var(--text-secondary);
+        }
+
+        .btn-cancel:hover {
+            background: #E5E7EB;
+        }
+
+        .btn-delete {
+            background: white;
+            border-color: var(--red-outline);
+            color: var(--red-outline);
+        }
+
+        .btn-delete:hover {
+            background: var(--red-outline);
+            color: white;
+        }
+
+        .btn-save {
+            background: var(--primary-orange);
+            color: white;
+            min-width: 140px;
+        }
+
+        .btn-save:hover {
+            background: var(--primary-orange-hover);
+            box-shadow: 0 4px 12px rgba(255, 138, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .student-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+            .subject-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+            .subject-right {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Student Info Header Card -->
+        <div class="student-header">
+            <div class="student-info-left">
+                <div class="avatar-circle">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="label">Student Name</span>
+                        <span class="value">John Doe</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Student ID</span>
+                        <span class="value">2028201001</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Semester</span>
+                        <span class="value">I</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Exam Type</span>
+                        <span class="value">HALF 1</span>
+                    </div>
+                </div>
+            </div>
+            <div class="menu-dots">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+            </div>
+        </div>
+
+        <span class="section-title">EXAM SUBJECTS</span>
+
+        <!-- Subjects Container -->
+        <div class="subjects-list" id="subjectsContainer">
+            <!-- Initial Subject 01 -->
+            <div class="subject-card">
+                <div class="subject-left">
+                    <span class="course-code-label">COURSE CODE</span>
+                    <span class="course-code-value">CSE301</span>
+                    <span class="course-name-bold">Data Structures</span>
+                    <span class="course-name-subtitle">Data Structures</span>
+                </div>
+                <div class="subject-right">
+                    <div class="input-group">
+                        <label>Course Type</label>
+                        <select>
+                            <option selected>Theory</option>
+                            <option>Practical</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Course</label>
+                        <select>
+                            <option selected>Theory</option>
+                            <option>Lab</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Mark</label>
+                        <input type="number" class="mark-input" value="100">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Initial Subject 02 -->
+            <div class="subject-card">
+                <div class="subject-left">
+                    <span class="course-code-label">COURSE CODE</span>
+                    <span class="course-code-value">CSE302</span>
+                    <span class="course-name-bold">Algorithms</span>
+                    <span class="course-name-subtitle">Design & Analysis</span>
+                </div>
+                <div class="subject-right">
+                    <div class="input-group">
+                        <label>Course Type</label>
+                        <select>
+                            <option selected>Theory</option>
+                            <option>Practical</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Course</label>
+                        <select>
+                            <option selected>Theory</option>
+                            <option>Lab</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Mark</label>
+                        <input type="number" class="mark-input" value="95">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Subject -->
+        <button class="add-subject-btn" onclick="addNewSubject()">
+            <i class="fa-solid fa-circle-plus"></i>
+            Add New Subject
+        </button>
+
+        <!-- Action Buttons -->
+        <div class="action-footer">
+            <button class="btn btn-cancel" onclick="window.history.back()">Cancel</button>
+            <button class="btn btn-delete">Delete</button>
+            <button class="btn btn-save" onclick="saveMarks()">Save Changes</button>
+        </div>
+    </div>
+
+    <script>
+        let subjectCount = 2;
+
+        function addNewSubject() {
+            subjectCount++;
+            const container = document.getElementById('subjectsContainer');
+            
+            const card = document.createElement('div');
+            card.className = 'subject-card';
+            
+            card.innerHTML = `
+                <div class="subject-left">
+                    <span class="course-code-label">COURSE CODE</span>
+                    <span class="course-code-value">CSE00${subjectCount}</span>
+                    <span class="course-name-bold">New Subject ${subjectCount}</span>
+                    <span class="course-name-subtitle">Core Elective</span>
+                </div>
+                <div class="subject-right">
+                    <div class="input-group">
+                        <label>Course Type</label>
+                        <select>
+                            <option selected>Theory</option>
+                            <option>Practical</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Course</label>
+                        <select>
+                            <option selected>Theory</option>
+                            <option>Lab</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Mark</label>
+                        <input type="number" class="mark-input" value="0">
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(card);
+            
+            // Scroll to the new card smoothly
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function saveMarks() {
+            const subjectCards = document.querySelectorAll('.subject-card');
+            const marksData = [];
+
+            subjectCards.forEach(card => {
+                const code = card.querySelector('.course-code-value').innerText;
+                const mark = card.querySelector('.mark-input').value;
+                marksData.push({ code, mark });
+            });
+
+            console.log('Saved Marks Data:', marksData);
+            alert('Changes saved successfully! (Check console for data)');
+        }
+    </script>
+</body>
+</html>

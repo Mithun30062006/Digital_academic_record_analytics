@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student List - Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #334155;
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1300px;
+            /* Increased size */
+        }
+
+        .header {
+            margin-bottom: 30px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .back-btn {
+            background: #ffffff;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .back-btn:hover {
+            color: #2563eb;
+            border-color: #2563eb;
+            transform: translateX(-4px);
+        }
+
+        .title-area h1 {
+            font-size: 26px;
+            /* Slightly larger */
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .title-area p {
+            font-size: 15px;
+            color: #64748b;
+        }
+
+        .table-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            /* Horizontal scroll enabled */
+            flex: 1;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .table-wrapper::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1200px;
+            /* Force overflow for scrolling */
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        thead th {
+            background: #f8fafc;
+            padding: 18px 24px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 18px 24px;
+            font-size: 14px;
+            color: #475569;
+            border-bottom: 1px solid #f1f5f9;
+            white-space: nowrap;
+        }
+
+        .password-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 150px;
+        }
+
+        .password-text {
+            font-family: monospace;
+            letter-spacing: 2px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .toggle-password {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: #2563eb;
+        }
+
+        /* Editing Styles */
+        .edit-input {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #334155;
+            width: 100%;
+            outline: none;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+
+        .edit-input:focus {
+            border-color: #3b82f6;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-edit {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .btn-edit:hover {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .btn-save {
+            background: #ecfdf5;
+            color: #10b981;
+        }
+
+        .btn-save:hover {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .btn-cancel {
+            background: #fff1f2;
+            color: #f43f5e;
+        }
+
+        .btn-cancel:hover {
+            background: #f43f5e;
+            color: #ffffff;
+        }
+
+        .btn-delete {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        .btn-delete:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        /* Editing Styles */
+        .editable-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .edit-pencil {
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .edit-pencil:hover {
+            color: #2563eb;
+        }
+
+        .edit-input {
+            padding: 4px 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #334155;
+            width: 80px;
+            outline: none;
+        }
+
+        .edit-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .save-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            transition: background 0.2s;
+        }
+
+        .save-btn:hover {
+            background: #059669;
+        }
+
+        .save-btn.active {
+            display: inline-block;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #94a3b8;
+            margin-bottom: 24px;
+        }
+
+        .empty-state h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 15px;
+            color: #64748b;
+            max-width: 400px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .create-btn {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .create-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; align-items: flex-start; gap: 20px;">
+                <a href="admin.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+                <div class="title-area">
+                    <h1>Student List</h1>
+                    <p>Manage and view all enrolled students in the registry.</p>
+                </div>
+            </div>
+            <button class="create-btn" onclick="openCreateForm()"><i class="fa-solid fa-plus"></i> Create
+                Student</button>
+        </div>
+        <div class="table-card">
+            <div class="table-wrapper hidden" id="tableContent">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>STUDENT NAME</th>
+                            <th>STUDENT ID</th>
+                            <th>EMAIL ADDRESS</th>
+                            <th>MOBILE NUMBER</th>
+                            <th>BATCH</th>
+                            <th>DEPARTMENT</th>
+                            <th>SEMESTER</th>
+                            <th>YEAR</th>
+                            <th>PASSWORD</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-state" id="emptyContent">
+                <div class="empty-icon"><i class="fa-solid fa-user-plus"></i></div>
+                <h2>No data entered</h2>
+                <p>There are no student records to display at the moment.<br>Click the 'Create Student' button to begin
+                    adding data to the registry.</p>
+                <button class="create-btn" onclick="openCreateForm()"><i class="fa-solid fa-plus"></i> Create
+                    Student</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // State to hold fetched students
+        let students = [];
+        let editingRows = {};
+
+        // Fetch students from the real API
+        async function fetchStudents() {
+            try {
+                const response = await fetch('http://localhost:3000/api/students', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                if (response.ok) {
+                    students = await response.json();
+                    renderStudents();
+                } else {
+                    console.error('Failed to fetch students');
+                    // Fallback to empty state if API fails
+                    renderStudents();
+                }
+            } catch (error) {
+                console.error('Error fetching students:', error);
+                renderStudents();
+            }
+        }
+
+        function renderStudents() {
+            const tableContent = document.getElementById('tableContent');
+            const emptyContent = document.getElementById('emptyContent');
+            const tbody = document.getElementById('studentTableBody');
+            const titleAreaP = document.querySelector('.title-area p');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const filterDept = urlParams.get('dept');
+            const filterSemester = urlParams.get('semester');
+
+            let filteredStudents = students;
+            if (filterDept) {
+                filteredStudents = filteredStudents.filter(s => s.department === filterDept);
+                titleAreaP.innerText = `Viewing students in ${filterDept}${filterSemester ? `, Semester ${filterSemester}` : ''}`;
+            } else if (filterSemester) {
+                filteredStudents = filteredStudents.filter(s => s.semester === filterSemester);
+                titleAreaP.innerText = `Viewing students in Semester ${filterSemester}`;
+            }
+
+            if (filteredStudents.length === 0) {
+                tableContent.classList.add('hidden');
+                emptyContent.classList.remove('hidden');
+                if (filterDept || filterSemester) {
+                    emptyContent.querySelector('h2').innerText = 'No matching students found';
+                    emptyContent.querySelector('p').innerHTML = `No student records found for the selected criteria.<br>Try adjusting your search or adding new students.`;
+                }
+            } else {
+                tableContent.classList.remove('hidden');
+                emptyContent.classList.add('hidden');
+                tbody.innerHTML = filteredStudents.map((s, index) => {
+                    const originalIndex = students.indexOf(s);
+                    const isEditing = editingRows[originalIndex];
+                    const idx = originalIndex;
+                    return `
+                    <tr id="row-${idx}">
+                        <td style="font-weight: 600; color: #1e293b;">
+                            ${isEditing ? `<input type="text" class="edit-input" id="name-${idx}" value="${s.name}">` : s.name}
+                        </td>
+                        <td>
+                            ${isEditing ? `<input type="text" class="edit-input" id="student_id-${idx}" value="${s.student_id || s.id || ''}">` : (s.student_id || s.id || '')}
+                        </td>
+                        <td>
+                            ${isEditing ? `<input type="email" class="edit-input" id="email-${idx}" value="${s.email}">` : s.email}
+                        </td>
+                        <td>
+                            ${isEditing ? `<input type="text" class="edit-input" id="mobile-${idx}" value="${s.mobile || ''}">` : (s.mobile || '-')}
+                        </td>
+                        <td>
+                            ${isEditing ? `<input type="text" class="edit-input" id="batch-${idx}" value="${s.batch}">` : s.batch}
+                        </td>
+                        <td>
+                            ${isEditing ? `
+                                 <select class="edit-input" id="dept-${idx}">
+                                    <option value="Electrical and Electronics Engineering" ${s.department === 'Electrical and Electronics Engineering' ? 'selected' : ''}>Electrical and Electronics Engineering</option>
+                                    <option value="Electronics and Communication Engineering" ${s.department === 'Electronics and Communication Engineering' ? 'selected' : ''}>Electronics and Communication Engineering</option>
+                                    <option value="Computer Science and Engineering" ${s.department === 'Computer Science and Engineering' ? 'selected' : ''}>Computer Science and Engineering</option>
+                                    <option value="Information Technology" ${s.department === 'Information Technology' ? 'selected' : ''}>Information Technology</option>
+                                </select>` : (s.department || '-')}
+                        </td>
+                        <td>
+                            ${isEditing ? `
+                                <select class="edit-input" id="semester-${idx}">
+                                    <option value="I" ${s.semester === 'I' ? 'selected' : ''}>I</option>
+                                    <option value="II" ${s.semester === 'II' ? 'selected' : ''}>II</option>
+                                    <option value="III" ${s.semester === 'III' ? 'selected' : ''}>III</option>
+                                    <option value="IV" ${s.semester === 'IV' ? 'selected' : ''}>IV</option>
+                                    <option value="V" ${s.semester === 'V' ? 'selected' : ''}>V</option>
+                                    <option value="VI" ${s.semester === 'VI' ? 'selected' : ''}>VI</option>
+                                    <option value="VII" ${s.semester === 'VII' ? 'selected' : ''}>VII</option>
+                                    <option value="VIII" ${s.semester === 'VIII' ? 'selected' : ''}>VIII</option>
+                                </select>` : (s.semester || '-')}
+                        </td>
+                        <td>
+                            ${isEditing ? `
+                                <select class="edit-input" id="year-${idx}">
+                                    <option value="I" ${s.year === 'I' ? 'selected' : ''}>I</option>
+                                    <option value="II" ${s.year === 'II' ? 'selected' : ''}>II</option>
+                                    <option value="III" ${s.year === 'III' ? 'selected' : ''}>III</option>
+                                    <option value="IV" ${s.year === 'IV' ? 'selected' : ''}>IV</option>
+                                </select>` : s.year}
+                        </td>
+                        <td>
+                            <div class="password-cell">
+                                ${isEditing ? `<input type="text" class="edit-input" id="password-${idx}" value="${s.password}">` : `
+                                    <span class="password-text" id="pass-${idx}">••••••••</span>
+                                    <button class="toggle-password" onclick="toggleVisibility(${idx}, '${s.password}')">
+                                        <i class="fa-solid fa-eye" id="icon-${idx}"></i>
+                                    </button>
+                                `}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                ${isEditing ? `
+                                    <button class="action-btn btn-save" onclick="saveRow(${idx})" title="Save Changes">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    <button class="action-btn btn-cancel" onclick="cancelEdit(${idx})" title="Cancel">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                ` : `
+                                    <button class="action-btn btn-edit" onclick="enableEdit(${idx})" title="Edit Student">
+                                        <i class="fa-solid fa-pencil"></i>
+                                    </button>
+                                    <button class="action-btn btn-delete" onclick="deleteStudent(${idx})" title="Delete Student">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                `}
+                            </div>
+                        </td>
+                    </tr>
+                `}).join('');
+            }
+        }
+
+        function enableEdit(index) {
+            editingRows[index] = true;
+            renderStudents();
+        }
+
+        function cancelEdit(index) {
+            delete editingRows[index];
+            renderStudents();
+        }
+
+        async function saveRow(index) {
+            const updatedData = {
+                name: document.getElementById(`name-${index}`).value,
+                student_id: document.getElementById(`student_id-${index}`).value,
+                email: document.getElementById(`email-${index}`).value,
+                mobile: document.getElementById(`mobile-${index}`).value,
+                batch: document.getElementById(`batch-${index}`).value,
+                department: document.getElementById(`dept-${index}`).value,
+                semester: document.getElementById(`semester-${index}`).value,
+                year: document.getElementById(`year-${index}`).value,
+                password: document.getElementById(`password-${index}`).value
+            };
+
+            // Basic validation
+            if (!updatedData.name || !updatedData.student_id || !updatedData.email) {
+                alert("Please fill in Name, ID, and Email.");
+                return;
+            }
+
+            const studentIdToUpdate = students[index].id; // The database _id
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/students/${studentIdToUpdate}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (response.ok) {
+                    students[index] = { ...students[index], ...updatedData };
+                    delete editingRows[index];
+                    renderStudents();
+                    alert("Student details updated successfully!");
+                } else {
+                    const error = await response.json();
+                    alert('Error updating student: ' + (error.message || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error("Update failed", err);
+                alert("Failed to connect to the server.");
+            }
+        }
+
+        async function deleteStudent(index) {
+            const student = students[index];
+            const studentId = student.id; // The database _id
+            const studentName = student.name;
+
+            if (!confirm(`Are you sure you want to delete student "${studentName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/students/${studentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                if (response.ok) {
+                    alert("Student deleted successfully.");
+                    // Remove from local array and re-render
+                    students.splice(index, 1);
+                    renderStudents();
+                } else {
+                    const error = await response.json();
+                    alert('Error deleting student: ' + (error.message || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error("Delete failed", err);
+                alert("Failed to connect to the server.");
+            }
+        }
+
+        function toggleVisibility(index, actualPassword) {
+            const passSpan = document.getElementById(`pass-${index}`);
+            const icon = document.getElementById(`icon-${index}`);
+
+            if (passSpan.innerText === '••••••••') {
+                passSpan.innerText = actualPassword;
+                passSpan.style.letterSpacing = 'normal';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passSpan.innerText = '••••••••';
+                passSpan.style.letterSpacing = '2px';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function openCreateForm() {
+            window.location.href = 'add-student.html';
+        }
+
+        // Initialize view by fetching data
+        document.addEventListener('DOMContentLoaded', fetchStudents);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Schedule - Student Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="js/config.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-lg h-screen sticky top-0 flex flex-col p-6 z-10 transition-all duration-300">
+            <h2 class="text-xl font-bold mb-10 text-gray-800 flex items-center gap-2">
+                <span
+                    class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs">U</span>
+                Student Portal
+            </h2>
+            <nav class="space-y-1 flex-grow">
+                <a href="student.html"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="academics.html"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    Academics
+                </a>
+                <a href="attendance.html"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Attendance
+                </a>
+                <a href="exam.html"
+                    class="flex items-center gap-3 px-4 py-3 bg-blue-100 text-blue-600 font-semibold rounded-lg shadow-sm transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    Exam
+                </a>
+                <a href="result.html"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Result
+                </a>
+            </nav>
+            <div class="mt-auto pt-6 border-t">
+                <button onclick="window.location.href='index.html'"
+                    class="flex items-center gap-3 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg w-full transition-colors text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-8 overflow-y-auto bg-gray-50">
+            <div class="max-w-5xl mx-auto">
+                <header class="mb-8">
+                    <h1 class="text-3xl font-extrabold text-gray-800">Exam Schedule</h1>
+                </header>
+
+                <!-- Exam Information Card -->
+                <section class="bg-orange-50 rounded-3xl p-8 mb-8 border border-orange-100 shadow-sm">
+                    <div class="mb-6">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div>
+                            <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Department
+                            </p>
+                            <p id="studentDept" class="text-sm font-bold text-orange-900">Loading...</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">
+                                Semester</p>
+                            <p id="studentAcademicInfo" class="text-sm font-bold text-orange-900">Loading...</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Exam
+                            </p>
+                            <p id="examTypeLabel" class="text-sm font-bold text-orange-900">Half 1</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Detailed Schedule Header -->
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-800">Detailed Schedule</h2>
+                </div>
+
+                <!-- Schedule Table -->
+                <section class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50/50 border-b border-gray-50">
+                                <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    S.No</th>
+                                <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                    Subject</th>
+                                <th
+                                    class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                    Date</th>
+                                <th
+                                    class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                    Session</th>
+                                <th
+                                    class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                    From Time</th>
+                                <th
+                                    class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">
+                                    To Time</th>
+                                <th
+                                    class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
+                                    Venue</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                        <tbody id="scheduleBody" class="divide-y divide-gray-50">
+                            <!-- Data will be injected here -->
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Note Section -->
+                <div class="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex items-start gap-4 mb-8">
+                    <div
+                        class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Note</p>
+                        <p class="text-xs font-semibold text-gray-600">Students must report at least 30 minutes before
+                            exams.</p>
+                    </div>
+                </div>
+
+                <!-- Bottom Summary Card -->
+                <div
+                    class="bg-orange-500 rounded-3xl p-8 text-white shadow-xl shadow-orange-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-orange-200">Total Exams</p>
+                        <p class="text-xs font-bold mt-1 text-orange-100 opacity-80">All scheduled subjects included</p>
+                    </div>
+                    <p id="totalExamsCount" class="text-6xl font-black">00</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            const studentId = localStorage.getItem('student_id');
+            if (!token || !studentId) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            try {
+                // 1. Fetch Student Profile to get Department and Semester
+                const profileRes = await fetch(`${API_URL}/students/${studentId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!profileRes.ok) throw new Error('Failed to fetch profile');
+                
+                const studentData = await profileRes.json();
+                const department = studentData.department;
+                const semester = studentData.semester || 'I';
+
+                document.getElementById('studentDept').textContent = department || 'N/A';
+                document.getElementById('studentAcademicInfo').textContent = semester;
+
+                // 2. Fetch Exam Schedule based on Dept and Semester (mapped to 'year' in DB)
+                // Assuming default examType is 'HALF 1' or matches what's in admin
+                const scheduleRes = await fetch(`${API_URL}/exam-schedule?department=${encodeURIComponent(department)}&year=${encodeURIComponent(semester)}&published=true`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (scheduleRes.ok) {
+                    const schedules = await scheduleRes.json();
+                    if (schedules && schedules.length > 0) {
+                        const latestSchedule = schedules[0]; // Get the most recent one
+                        renderSchedule(latestSchedule);
+                    } else {
+                        showNoSchedule();
+                    }
+                } else {
+                    showNoSchedule();
+                }
+
+            } catch (err) {
+                console.error('Error:', err);
+                showNoSchedule();
+            }
+        });
+
+        function renderSchedule(schedule) {
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '';
+            
+            // Update Exam Type Label
+            document.getElementById('examTypeLabel').textContent = schedule.examType || 'Half 1';
+
+            const entries = schedule.entries || [];
+            document.getElementById('totalExamsCount').textContent = entries.length.toString().padStart(2, '0');
+
+            entries.forEach((entry, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50/50 transition-colors';
+                
+                const sno = (index + 1).toString().padStart(2, '0');
+                const sessionColor = entry.session === 'AN' ? 'purple' : 'blue';
+
+                tr.innerHTML = `
+                    <td class="px-6 py-5 text-sm font-bold text-gray-400">${sno}</td>
+                    <td class="px-6 py-5">
+                        <p class="text-sm font-bold text-gray-800">${entry.subject}</p>
+                        <p class="text-[10px] text-blue-500 font-bold tracking-widest">COURSE CODE</p>
+                    </td>
+                    <td class="px-6 py-5 text-sm font-bold text-gray-600 text-center">${formatDate(entry.date)}</td>
+                    <td class="px-6 py-5 text-center">
+                        <span class="bg-${sessionColor}-50 text-${sessionColor}-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">${entry.session}</span>
+                    </td>
+                    <td class="px-6 py-5 text-sm font-extrabold text-gray-800 text-center">${formatTime(entry.from)}</td>
+                    <td class="px-6 py-5 text-sm font-extrabold text-gray-800 text-center">${formatTime(entry.to)}</td>
+                    <td class="px-6 py-5 text-sm font-extrabold text-gray-800 text-right">${entry.venue}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function showNoSchedule() {
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-6 py-10 text-center text-gray-400 font-bold uppercase tracking-widest italic">
+                        no exam updated
+                    </td>
+                </tr>
+            `;
+            document.getElementById('totalExamsCount').textContent = '00';
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            try {
+                const date = new Date(dateStr);
+                if (isNaN(date.getTime())) return dateStr; // Fallback if format is different
+                return date.toLocaleDateString('en-GB'); // DD/MM/YYYY
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return 'N/A';
+            // Assuming timeStr is HH:MM from <input type="time">
+            try {
+                const [hours, minutes] = timeStr.split(':');
+                const h = parseInt(hours);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const h12 = h % 12 || 12;
+                return `${h12}:${minutes} ${ampm}`;
+            } catch (e) {
+                return timeStr;
+            }
+        }
+    </script>
+</body>
+
+</html>

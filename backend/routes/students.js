@@ -4,6 +4,7 @@ const studentsCtrl = require('../controllers/studentController');
 const { authenticate } = require('../middleware/auth');
 
 router.post('/login', studentsCtrl.login);
+router.get('/filter', authenticate(['admin']), studentsCtrl.filterByDeptAndYear);
 
 router.get('/', authenticate(['admin']), studentsCtrl.getAll);
 router.get('/:id', authenticate(['admin','student']), studentsCtrl.getById);

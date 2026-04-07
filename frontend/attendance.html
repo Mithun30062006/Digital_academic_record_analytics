@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Record - Student Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="js/config.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .circular-progress {
+            position: relative;
+            height: 80px;
+            width: 80px;
+            border-radius: 50%;
+            background: conic-gradient(#2563eb 0% 0%, #f3f4f6 0% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .circular-progress::before {
+            content: "";
+            position: absolute;
+            height: 60px;
+            width: 60px;
+            border-radius: 50%;
+            background-color: white;
+        }
+
+        .percentage {
+            position: relative;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="w-64 bg-white shadow-lg h-screen sticky top-0 flex flex-col p-6 z-10 transition-all duration-300">
+            <h2 class="text-xl font-bold mb-10 text-gray-800 flex items-center gap-2">
+                <span
+                    class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs">U</span>
+                Student Portal
+            </h2>
+            <nav class="space-y-1 flex-grow">
+                <a href="student.html"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Dashboard
+                </a>
+                <a href="academics.html"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    Academics
+                </a>
+                <a href="attendance.html"
+                    class="flex items-center gap-3 px-4 py-3 bg-blue-100 text-blue-600 font-semibold rounded-lg shadow-sm transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Attendance
+                </a>
+                <a href="exam.html"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                    </svg>
+                    Exam
+                </a>
+                <a href="result.html"
+                    class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 text-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Result
+                </a>
+            </nav>
+            <div class="mt-auto pt-6 border-t">
+                <button onclick="window.location.href='index.html'"
+                    class="flex items-center gap-3 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg w-full transition-colors text-sm font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-8 overflow-y-auto bg-gray-50">
+            <div class="max-w-4xl mx-auto">
+                <!-- Header -->
+                <header class="mb-8">
+                    <h1 class="text-2xl font-bold text-gray-800">Attendance Record</h1>
+                    <p id="studentSemesterInfo" class="text-xs text-gray-500 font-medium mt-1">Loading academic info...</p>
+                </header>
+
+                <!-- Attendance Summary Card -->
+                <section
+                    class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 flex items-center justify-between gap-6">
+                    <div class="space-y-4">
+                        <div class="space-y-1">
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Overall Attendance
+                            </p>
+                            <p class="text-4xl font-black text-gray-800">0%</p>
+                        </div>
+
+                        <div class="flex gap-8">
+                            <div>
+                                <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Days
+                                </p>
+                                <p class="text-lg font-black text-gray-800">0</p>
+                            </div>
+                            <div>
+                                <p
+                                    class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1 text-green-500">
+                                    Present</p>
+                                <p class="text-lg font-black text-green-600">0</p>
+                            </div>
+                            <div>
+                                <p
+                                    class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1 text-red-500">
+                                    Absent</p>
+                                <p class="text-lg font-black text-red-600">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="circular-progress shadow-xl shadow-blue-100">
+                        <span class="percentage">0%</span>
+                    </div>
+                </section>
+
+                <!-- Date Selector Section -->
+                <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+                    <h2 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Date</h2>
+                    <div class="relative max-w-xs group">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-auto text-gray-400 cursor-pointer hover:text-blue-500 transition-colors"
+                            onclick="document.getElementById('attendance-date').showPicker()">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <input type="date" id="attendance-date"
+                            class="w-full bg-gray-50 border border-gray-100 rounded-xl pl-12 pr-4 py-4 text-sm font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all cursor-pointer">
+                    </div>
+                </section>
+
+                <!-- Daily Attendance Breakdown -->
+                <section>
+                    <!-- Special Action Status Box -->
+                    <div id="specialActionBox" class="hidden mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center gap-3 animate-pulse">
+                        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p id="specialActionText" class="text-sm font-bold text-red-800"></p>
+                    </div>
+
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Daily Attendance Breakdown</h2>
+
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                        <!-- Session Rows -->
+                        <div class="divide-y divide-gray-50">
+                            <div class="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
+                                <span class="text-sm font-bold text-gray-700">Session 1</span>
+                                <span
+                                    class="bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Absent</span>
+                            </div>
+                            <div class="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
+                                <span class="text-sm font-bold text-gray-700">Session 2</span>
+                                <span
+                                    class="bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Absent</span>
+                            </div>
+                            <div class="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
+                                <span class="text-sm font-bold text-gray-700">Session 3</span>
+                                <span
+                                    class="bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Absent</span>
+                            </div>
+                            <div class="flex items-center justify-between p-6 hover:bg-gray-50 transition-colors">
+                                <span class="text-sm font-bold text-gray-700">Session 4</span>
+                                <span
+                                    class="bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Absent</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    <script src="js/config.js"></script>
+    <script>
+        let studentYear = null;
+        let specialActions = [];
+
+        async function fetchStudentProfile() {
+
+            const token = localStorage.getItem('token');
+            const studentId = localStorage.getItem('student_id');
+            if (!token || !studentId) return;
+
+            try {
+                const res = await fetch(`${API_URL}/students/${studentId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    studentYear = data.year;
+                    const semesterInfo = document.getElementById('studentSemesterInfo');
+                    if (semesterInfo) {
+                        semesterInfo.textContent = `Batch ${data.batch || '2023-2024'} • Semester ${data.semester || 'I'}`;
+                    }
+                    // Initial check for special action once year is known
+                    fetchSpecialAction();
+                    fetchAllSpecialActions();
+                }
+
+            } catch (err) {
+                console.error('Failed to fetch student profile:', err);
+            }
+        }
+
+        async function fetchSpecialAction() {
+            const token = localStorage.getItem('token');
+            const selectedDate = document.getElementById('attendance-date').value;
+            const box = document.getElementById('specialActionBox');
+            const text = document.getElementById('specialActionText');
+
+            if (!token || !selectedDate || !studentYear) return;
+
+            try {
+                const res = await fetch(`${API_URL}/special-actions?date=${selectedDate}&year=${studentYear}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    const action = await res.json();
+                    if (action) {
+                        box.classList.remove('hidden');
+                        const reason = action.reason.toLowerCase();
+                        text.textContent = `Today is ${reason} no attendance`;
+                    } else {
+                        box.classList.add('hidden');
+                    }
+                } else {
+                    box.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error('Failed to fetch special action:', err);
+                box.classList.add('hidden');
+            }
+        }
+
+
+        async function fetchAllSpecialActions() {
+            const token = localStorage.getItem('token');
+            if (!token || !studentYear) return;
+
+            try {
+                const res = await fetch(`${API_URL}/special-actions?year=${studentYear}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    specialActions = await res.json();
+                    // Refetch attendance data to update summary with filtered dates
+                    fetchAttendanceData();
+                }
+            } catch (err) {
+                console.error('Failed to fetch all special actions:', err);
+            }
+        }
+
+        async function fetchAttendanceData() {
+
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const selectedDate = document.getElementById('attendance-date').value;
+            
+            // Fetch special action status separately
+            fetchSpecialAction();
+
+            try {
+
+                // 1. Fetch ALL attendance for summary
+                const summaryRes = await fetch(`${API_URL}/attendance`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (summaryRes.ok) {
+                    const allRecords = await summaryRes.json();
+                    updateSummary(allRecords);
+                }
+
+                // 2. Fetch for selected date for breakdown
+                const dailyRes = await fetch(`${API_URL}/attendance?date=${selectedDate}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (dailyRes.ok) {
+                    const dailyRecords = await dailyRes.json();
+                    updateBreakdown(dailyRecords);
+                }
+
+            } catch (err) {
+                console.error('Failed to fetch attendance:', err);
+            }
+        }
+
+        function updateSummary(records) {
+            // Group records by date
+            const groupedByDate = {};
+            records.forEach(r => {
+                if (!groupedByDate[r.date]) groupedByDate[r.date] = {};
+                groupedByDate[r.date][r.session] = r.status;
+            });
+
+            // Get list of special dates to exclude
+            const specialDates = specialActions.map(a => a.date);
+
+            let daysPresent = 0;
+            let daysAbsent = 0;
+
+            Object.keys(groupedByDate).forEach(date => {
+                // EXCLUDE dates marked as special (Sunday, Leave, Semester)
+                if (specialDates.includes(date)) return;
+
+                const daySessions = groupedByDate[date];
+
+                // Block 1 (Sessions 1 & 2)
+                if (daySessions[1] || daySessions[2]) {
+                    if (daySessions[1] === 'present' && daySessions[2] === 'present') {
+                        daysPresent += 0.5;
+                    } else {
+                        daysAbsent += 0.5;
+                    }
+                }
+
+                // Block 2 (Sessions 3 & 4)
+                if (daySessions[3] || daySessions[4]) {
+                    if (daySessions[3] === 'present' && daySessions[4] === 'present') {
+                        daysPresent += 0.5;
+                    } else {
+                        daysAbsent += 0.5;
+                    }
+                }
+            });
+
+
+            const totalDaysMarked = daysPresent + daysAbsent;
+            const percentage = totalDaysMarked > 0 ? Math.round((daysPresent / totalDaysMarked) * 100) : 0;
+
+            // Update UI elements
+            document.querySelectorAll('p.text-4xl.font-black.text-gray-800')[0].textContent = `${percentage}%`;
+            document.querySelectorAll('p.text-lg.font-black.text-gray-800')[0].textContent = totalDaysMarked;
+            document.querySelectorAll('p.text-lg.font-black.text-green-600')[0].textContent = daysPresent;
+            document.querySelectorAll('p.text-lg.font-black.text-red-600')[0].textContent = daysAbsent;
+            document.querySelector('.percentage').textContent = `${percentage}%`;
+            
+            // Update circular progress
+            document.querySelector('.circular-progress').style.background = 
+                `conic-gradient(#2563eb 0% ${percentage}%, #f3f4f6 ${percentage}% 100%)`;
+        }
+
+        function updateBreakdown(records) {
+            // Default statuses
+            const statuses = { 1: 'Absent', 2: 'Absent', 3: 'Absent', 4: 'Absent' };
+            
+            // Update with actual records
+            records.forEach(r => {
+                if (statuses[r.session] !== undefined) {
+                    statuses[r.session] = r.status.charAt(0).toUpperCase() + r.status.slice(1);
+                }
+            });
+
+            // Update UI rows
+            const rows = document.querySelectorAll('.divide-y > div');
+            rows.forEach((row, index) => {
+                const sessionNum = index + 1;
+                const status = statuses[sessionNum];
+                const badge = row.querySelector('span:last-child');
+                
+                badge.textContent = status;
+                badge.className = status === 'Present' 
+                    ? 'bg-green-100 text-green-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest'
+                    : 'bg-red-100 text-red-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest';
+            });
+        }
+
+        // Initialize state
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendance-date').value = today;
+            fetchStudentProfile();
+            fetchAttendanceData();
+        };
+
+
+
+        // Listen for date changes
+        document.getElementById('attendance-date').addEventListener('change', fetchAttendanceData);
+
+        // Date picker interactivity
+        document.getElementById('attendance-date').addEventListener('click', function () {
+            this.showPicker();
+        });
+    </script>
+</body>
+
+</html>

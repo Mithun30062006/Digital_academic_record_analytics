@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Course - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Toast Notification Styles */
+        .toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: #ffffff;
+            color: #1e293b;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            transform: translateX(120%);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto;
+            border-left: 6px solid #e2e8f0;
+        }
+
+        .toast.active {
+            transform: translateX(0);
+        }
+
+        .toast-success {
+            background: #10b981; /* Vibrant Green */
+            color: #ffffff;
+            border-left-color: #059669;
+        }
+
+        .toast-error {
+            background: #ef4444; /* Soft Red */
+            color: #ffffff;
+            border-left-color: #dc2626;
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+        }
+
+        .toast-message {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Course Materials Section Styles */
+        .ac-materials-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px dashed #e2e8f0;
+        }
+
+        .ac-materials-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ac-materials-title i {
+            color: #3b82f6;
+        }
+
+        .ac-unit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .ac-unit-item {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .ac-unit-item:hover {
+            border-color: #3b82f6;
+            background: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+        }
+
+        .ac-unit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ac-unit-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .ac-file-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #3b82f6;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .ac-file-btn:hover {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+
+        .ac-file-status {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+        }
+
+        .ac-file-status.has-file {
+            color: #10b981;
+            font-weight: 500;
+        }
+
+        .ac-remove-file {
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: none;
+        }
+
+        .ac-unit-item.has-selected-file .ac-remove-file {
+            display: block;
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="ac-body">
+    <div class="ac-container">
+
+        <!-- Header -->
+        <div class="ac-header">
+            <a href="javascript:history.back()" class="ac-back-btn">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <h1 class="ac-title">Add Course</h1>
+        </div>
+
+        <!-- Form Card -->
+        <div class="ac-card">
+            <form id="addCourseForm" class="ac-form" novalidate>
+
+                <!-- Row 1: Course Code & Course Name -->
+                <div class="ac-form-grid">
+                    <div class="ac-form-group">
+                        <label for="courseCode">Course Code</label>
+                        <input type="text" id="courseCode" class="ac-input" placeholder="e.g., CS101" required>
+                    </div>
+                    <div class="ac-form-group">
+                        <label for="courseName">Course Name</label>
+                        <input type="text" id="courseName" class="ac-input" placeholder="e.g., Database Management"
+                            required>
+                    </div>
+                </div>
+
+                <!-- Row 2: Course Type & Credits -->
+                <div class="ac-form-grid">
+                    <div class="ac-form-group">
+                        <label>Course Type</label>
+                        <div class="ac-toggle-group">
+                            <button type="button" class="ac-toggle-btn active" data-value="Theory">Theory</button>
+                            <button type="button" class="ac-toggle-btn" data-value="Theory with Lab">Theory with Lab</button>
+                        </div>
+                        <input type="hidden" id="courseType" value="Theory">
+                    </div>
+                    <div class="ac-form-group">
+                        <label for="credits">Credits</label>
+                        <div class="ac-number-input">
+                            <button type="button" class="ac-num-btn ac-num-dec" id="decBtn">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <input type="number" id="credits" class="ac-input ac-num-field" value="0" min="0" max="10"
+                                required>
+                            <button type="button" class="ac-num-btn ac-num-inc" id="incBtn">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Faculty Name -->
+                <div class="ac-form-grid ac-form-grid-single">
+                    <div class="ac-form-group ac-faculty-group">
+                        <label for="facultyName">Faculty Name</label>
+                        <input type="text" id="facultyName" class="ac-input" placeholder="Enter faculty name" required>
+                    </div>
+                </div>
+
+                <!-- Course Materials Section -->
+                <div class="ac-materials-section">
+                    <h3 class="ac-materials-title"><i class="fa-solid fa-book-open"></i> Course Materials</h3>
+                    <div class="ac-unit-grid" id="unitGrid">
+                        <!-- Units 1-5 will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="ac-actions">
+                    <button type="submit" class="ac-save-btn">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Details
+                    </button>
+                    <button type="button" class="ac-cancel-btn" id="cancelBtn">Cancel</button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // ---- Toast System ----
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            
+            const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+            
+            toast.innerHTML = `
+                <i class="fa-solid ${icon} toast-icon"></i>
+                <span class="toast-message">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger animation
+            setTimeout(() => toast.classList.add('active'), 10);
+            
+            // Auto hide
+            setTimeout(() => {
+                toast.classList.remove('active');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // Initialize and Auth Check
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+        if (!token || role !== 'admin') {
+            alert('Access denied. Admin login required.');
+            window.location.href = 'index.html';
+        }
+
+        // Get parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const deptId = urlParams.get('deptId');
+        const semesterId = urlParams.get('semesterId');
+
+        // ---- Course Type Toggle ----
+        const toggleBtns = document.querySelectorAll('.ac-toggle-btn');
+        const courseTypeInput = document.getElementById('courseType');
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                toggleBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                courseTypeInput.value = btn.dataset.value;
+            });
+        });
+
+        // ---- Credits +/- ----
+        const creditsInput = document.getElementById('credits');
+        document.getElementById('decBtn').addEventListener('click', () => {
+            const val = parseInt(creditsInput.value) || 0;
+            if (val > 0) creditsInput.value = val - 1;
+        });
+        document.getElementById('incBtn').addEventListener('click', () => {
+            const val = parseInt(creditsInput.value) || 0;
+            if (val < 10) creditsInput.value = val + 1;
+        });
+
+        const facultyInput = document.getElementById('facultyName');
+
+        // ---- Materials Logic ----
+        const selectedMaterials = {};
+
+        function renderUnitGrid() {
+            const grid = document.getElementById('unitGrid');
+            grid.innerHTML = [1, 2, 3, 4, 5].map(i => `
+                <div class="ac-unit-item" id="unit-item-${i}">
+                    <div class="ac-unit-header">
+                        <span class="ac-unit-label">Unit ${i}</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span class="ac-remove-file" onclick="removeFile(${i})">Remove</span>
+                            <button type="button" class="ac-file-btn" onclick="triggerFileSelect(${i})">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <span class="ac-file-status" id="status-unit-${i}">No file selected</span>
+                    <input type="file" id="file-unit-${i}" class="hidden-file-input" onchange="handleFileSelect(${i})">
+                </div>
+            `).join('');
+        }
+
+        renderUnitGrid();
+
+        function triggerFileSelect(unitNum) {
+            document.getElementById(`file-unit-${unitNum}`).click();
+        }
+
+        function handleFileSelect(unitNum) {
+            const input = document.getElementById(`file-unit-${unitNum}`);
+            const file = input.files[0];
+            if (!file) return;
+
+            selectedMaterials[unitNum] = file;
+            const statusEl = document.getElementById(`status-unit-${unitNum}`);
+            const itemEl = document.getElementById(`unit-item-${unitNum}`);
+
+            statusEl.textContent = file.name;
+            statusEl.classList.add('has-file');
+            itemEl.classList.add('has-selected-file');
+        }
+
+        function removeFile(unitNum) {
+            delete selectedMaterials[unitNum];
+            document.getElementById(`file-unit-${unitNum}`).value = '';
+            
+            const statusEl = document.getElementById(`status-unit-${unitNum}`);
+            const itemEl = document.getElementById(`unit-item-${unitNum}`);
+
+            statusEl.textContent = 'No file selected';
+            statusEl.classList.remove('has-file');
+            itemEl.classList.remove('has-selected-file');
+        }
+
+        // ---- Cancel ----
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            history.back();
+        });
+
+        // ---- Form Submit ----
+        document.getElementById('addCourseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const code = document.getElementById('courseCode').value.trim();
+            const name = document.getElementById('courseName').value.trim();
+            const type = courseTypeInput.value;
+            const credit = creditsInput.value;
+            const faculty = facultyInput.value.trim();
+
+            // Validation
+            if (!code || !name || !faculty) {
+                showToast('Please fill in all required fields.', 'error');
+                return;
+            }
+
+            if (parseInt(credit) <= 0) {
+                showToast('Please set a valid credit value.', 'error');
+                return;
+            }
+
+            if (!deptId || !semesterId) {
+                showToast('Missing department or semester info. Please go back and try again.', 'error');
+                return;
+            }
+
+            const courseData = { 
+                code, 
+                name, 
+                type, 
+                credit: parseInt(credit), 
+                faculty,
+                departmentId: deptId,
+                semesterId: semesterId
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showToast('Session expired. Redirecting to login...', 'error');
+                    setTimeout(() => window.location.href = 'index.html', 1500);
+                    return;
+                }
+
+                const response = await fetch(`${API_URL}/departments/courses`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(courseData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const courseId = result.course ? result.course._id : (result.courseId || result._id || result.id);
+                    
+                    // Proceed to upload materials if any
+                    const unitsToUpload = Object.keys(selectedMaterials);
+                    if (unitsToUpload.length > 0) {
+                        showToast('Course created! Uploading materials...', 'success');
+                        
+                        for (const unitNum of unitsToUpload) {
+                            const file = selectedMaterials[unitNum];
+                            const formData = new FormData();
+                            formData.append('courseId', courseId);
+                            formData.append('unitNumber', unitNum);
+                            formData.append('material', file);
+
+                            try {
+                                await fetch(`${API_URL}/materials/upload`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: formData
+                                });
+                            } catch (uploadErr) {
+                                console.error(`Failed to upload Unit ${unitNum}:`, uploadErr);
+                            }
+                        }
+                    }
+
+                    showToast('Course and materials saved successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.href = `course.html?deptId=${deptId}&semesterId=${semesterId}`;
+                    }, 1500);
+                } else {
+                    const errorMsg = result.error || result.message || 'Failed to save course';
+                    showToast(`Error: ${errorMsg}`, 'error');
+                    
+                    if (response.status === 401 || response.status === 403) {
+                        console.warn('Authentication error:', result);
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving course:', error);
+                showToast('Network error. Failed to connect to the server.', 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

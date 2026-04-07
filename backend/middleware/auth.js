@@ -9,7 +9,10 @@ const authenticate = (roles = []) => {
     const token = authHeader.split(' ')[1];
     try {
       const payload = jwt.verify(token, process.env.JWT_SECRET || 'secret');
-      if (roles.length && !roles.includes(payload.role)) return res.status(403).json({ message: 'Forbidden' });
+      if (roles.length && !roles.includes(payload.role)) {
+        console.warn(`[Auth] Forbidden: User role '${payload.role}' not permitted for this route. Needed one of: ${roles.join(', ')}`);
+        return res.status(403).json({ message: `Forbidden: Admin role required (Current: ${payload.role || 'none'})` });
+      }
       req.user = payload;
       next();
     } catch (err) {

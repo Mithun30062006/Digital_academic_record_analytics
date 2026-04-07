@@ -1,35 +1,360 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Student Dashboard</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <div class="container">
-    <h1>Student Dashboard</h1>
-    <div>
-      <button id="logout">Logout</button>
-    </div>
-    <section>
-      <h2>Profile</h2>
-      <div id="profile"></div>
-    </section>
 
-    <section>
-      <h2>Marks</h2>
-      <table id="student-marks"></table>
-      <div id="analytics"></div>
-      <div class="card">
-        <h3>Performance Chart</h3>
-        <canvas id="performanceChart" width="600" height="300"></canvas>
-      </div>
-    </section>
-  </div>
-  <script src="js/config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="js/student.js"></script>
-  <script src="js/charts.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="js/config.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 antialiased">
+    <div id="root"></div>
+
+    <script src="js/config.js"></script>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const SidebarItem = ({ icon, label, active, onClick }) => (
+            <a
+                onClick={(e) => {
+                    e.preventDefault();
+                    onClick();
+                }}
+                href="#"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 ${active
+                    ? 'bg-blue-100 text-blue-600 font-semibold shadow-sm'
+                    : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+            >
+                {icon}
+                <span className="text-sm">{label}</span>
+            </a>
+        );
+
+        const MetricCard = ({ title, value, subtitle, subtitleColor, progressBar }) => (
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{title}</p>
+                <p className="text-3xl font-bold text-gray-800">{value}</p>
+                {subtitle && (
+                    <p className={`text-xs font-semibold mt-1 ${subtitleColor || 'text-gray-500'}`}>
+                        {subtitle}
+                    </p>
+                )}
+                {progressBar && (
+                    <div className="w-full bg-gray-100 h-1.5 rounded-full mt-4 overflow-hidden">
+                        <div className="bg-blue-600 h-full rounded-full" style={{ width: progressBar }}></div>
+                    </div>
+                )}
+            </div>
+        );
+
+        const Dashboard = () => {
+            const [activeMenu, setActiveMenu] = useState('Dashboard');
+            const [profile, setProfile] = useState(null);
+            const [attendanceStats, setAttendanceStats] = useState({ percentage: 0 });
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(null);
+
+            useEffect(() => {
+                const fetchProfile = async () => {
+                    try {
+                        const token = localStorage.getItem('token');
+                        const studentId = localStorage.getItem('student_id');
+                        
+                        if (!token || !studentId) {
+                            window.location.href = 'index.html';
+                            return;
+                        }
+
+                        const res = await fetch(`${API_URL}/students/${studentId}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+
+                        if (res.ok) {
+                            const data = await res.json();
+                            setProfile(data);
+                        } else {
+                            const errData = await res.json().catch(() => ({}));
+                            setError(`Error ${res.status}: ${errData.message || 'Failed to fetch profile'}`);
+                        }
+                    } catch (err) {
+                        setError(`Network Error: ${err.message}`);
+                    } finally {
+                        setLoading(false);
+                    }
+                };
+
+                const fetchAttendance = async () => {
+                   try {
+                       const token = localStorage.getItem('token');
+                       const res = await fetch(`${API_URL}/attendance`, {
+                           headers: { 'Authorization': `Bearer ${token}` }
+                       });
+                       if (res.ok) {
+                           const records = await res.json();
+                           if (records.length > 0) {
+                               const grouped = {};
+                               records.forEach(r => {
+                                   if (!grouped[r.date]) grouped[r.date] = {};
+                                   grouped[r.date][r.session] = r.status;
+                               });
+
+                               let daysPresent = 0;
+                               let daysAbsent = 0;
+
+                               Object.values(grouped).forEach(day => {
+                                   if (day[1] || day[2]) {
+                                       if (day[1] === 'present' && day[2] === 'present') daysPresent += 0.5;
+                                       else daysAbsent += 0.5;
+                                   }
+                                   if (day[3] || day[4]) {
+                                       if (day[3] === 'present' && day[4] === 'present') daysPresent += 0.5;
+                                       else daysAbsent += 0.5;
+                                   }
+                               });
+
+                               const totalMarked = daysPresent + daysAbsent;
+                               const percent = totalMarked > 0 ? Math.round((daysPresent / totalMarked) * 100) : 0;
+                               setAttendanceStats({ percentage: percent });
+                           }
+                       }
+                   } catch (err) {
+                       console.error('Failed to fetch attendance summary:', err);
+                   }
+                };
+
+                fetchProfile();
+                fetchAttendance();
+            }, []);
+
+            const menuItems = [
+                { label: 'Dashboard', url: 'student.html', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> },
+                { label: 'Academics', url: 'academics.html', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg> },
+                { label: 'Attendance', url: 'attendance.html', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> },
+                { label: 'Exam', url: 'exam.html', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg> },
+                { label: 'Result', url: 'result.html', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg> }
+            ];
+
+            if (loading) {
+                return (
+                    <div className="flex min-h-screen bg-gray-100 items-center justify-center">
+                        <div className="text-xl font-bold text-gray-400">Loading your profile...</div>
+                    </div>
+                );
+            }
+
+            if (error) {
+                return (
+                    <div className="flex min-h-screen bg-gray-100 items-center justify-center">
+                        <div className="text-center">
+                            <div className="text-xl font-bold text-red-500 mb-2">Failed to load profile</div>
+                            <div className="text-gray-500 text-sm mb-4">{error}</div>
+                            <button onClick={() => {
+                                localStorage.clear();
+                                window.location.href = 'index.html';
+                            }} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                Go to Login
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const getInitials = (name) => {
+                if (!name) return 'U';
+                const parts = name.split(' ');
+                if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+                return name.substring(0, 2).toUpperCase();
+            }
+
+            return (
+                <div className="flex min-h-screen bg-gray-100">
+                    {/* Sidebar */}
+                    <div className="w-64 bg-white shadow-lg h-screen sticky top-0 flex flex-col p-6 z-10">
+                        <h2 className="text-xl font-bold mb-10 text-gray-800 flex items-center gap-2">
+                            <span className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xs">U</span>
+                            Student Portal
+                        </h2>
+                        <div className="space-y-1">
+                            {menuItems.map(item => (
+                                <SidebarItem
+                                    key={item.label}
+                                    label={item.label}
+                                    icon={item.icon}
+                                    active={activeMenu === item.label}
+                                    onClick={() => {
+                                        if (item.url && item.url !== '#') {
+                                            window.location.href = item.url;
+                                        } else {
+                                            setActiveMenu(item.label);
+                                        }
+                                    }}
+                                />
+                            ))}
+                        </div>
+                        <div className="mt-auto pt-6 border-t">
+                            <button
+                                onClick={() => {
+                                    localStorage.clear();
+                                    window.location.href = 'index.html';
+                                }}
+                                className="flex items-center gap-3 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg w-full transition-colors text-sm font-medium"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Main Content Area */}
+                    <div className="flex-1 p-8 overflow-y-auto">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="flex justify-between items-center mb-8">
+                                <h1 className="text-2xl font-bold text-gray-800">Student Dashboard</h1>
+                            </div>
+
+                            {/* Profile Card */}
+                            <div className="bg-white rounded-2xl shadow-md p-8 mb-8 border border-gray-100">
+                                <div className="flex flex-col md:flex-row gap-10">
+                                    {/* Avatar Column */}
+                                    <div className="flex flex-col items-center gap-4">
+                                        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-1 shadow-xl">
+                                            <div className="w-full h-full rounded-full bg-white flex items-center justify-center border-4 border-white overflow-hidden">
+                                                <div className="w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-3xl font-extrabold">
+                                                    {getInitials(profile.name)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="px-3 py-1 bg-green-100 text-green-600 text-[10px] font-bold rounded-full uppercase tracking-widest">Active</div>
+                                    </div>
+
+                                    {/* Info Content Column */}
+                                    <div className="flex-grow">
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                                            <div>
+                                                <h2 className="text-3xl font-extrabold text-gray-800">{profile.name}</h2>
+                                                <p className="text-blue-600 font-semibold mt-1">Student ID: {profile.student_id}</p>
+                                                <p className="text-gray-400 text-sm italic font-medium">Batch: {profile.batch}</p>
+                                            </div>
+                                            <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 hidden lg:block min-w-[240px]">
+                                                <div className="mb-3">
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase mb-1 tracking-wider">Phone Number</p>
+                                                    <p className="text-sm font-bold text-gray-700">{profile.mobile}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase mb-1 tracking-wider">Email Address</p>
+                                                    <p className="text-sm font-bold text-gray-700">{profile.email}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr className="mb-6 border-gray-100" />
+
+                                        {/* Profile Details Grid */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {[
+                                                { label: 'Department', value: profile.department, icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg> },
+                                                { label: 'Current Year', value: profile.year, icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
+                                                { label: 'Current Semester', value: profile.semester || 'I', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> }
+                                            ].map((detail, idx) => (
+                                                <div key={idx} className="flex flex-col">
+                                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">{detail.label}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-blue-500">{detail.icon}</span>
+                                                        <span className="text-sm font-semibold text-gray-700 truncate">{detail.value}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Academic Dashboard Metrics */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                <MetricCard
+                                    title="Current SGPA"
+                                    value="0"
+                                    subtitle="Academic period started"
+                                    subtitleColor="text-gray-500"
+                                />
+                                <MetricCard
+                                    title="Overall CGPA"
+                                    value="0"
+                                    subtitle="Academic Standing: - "
+                                />
+                                <MetricCard
+                                    title="Attendance"
+                                    value={`${attendanceStats.percentage}%`}
+                                    subtitle={attendanceStats.percentage >= 75 ? "Above threshold" : "Below threshold"}
+                                    progressBar={`${attendanceStats.percentage}%`}
+                                />
+                                <MetricCard
+                                    title="Arrear Count"
+                                    value="0"
+                                    subtitle="No records found"
+                                />
+                            </div>
+
+                            {/* Progress Visualizer */}
+                            <div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
+                                <div className="flex items-center justify-between mb-8">
+                                    <h3 className="text-xl font-bold text-gray-800 tracking-tight">Academic Progress</h3>
+                                    <div className="flex gap-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2.5 h-2.5 bg-blue-100 rounded-full"></div>
+                                            <span className="text-[10px] font-bold text-gray-400">Target</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2.5 h-2.5 bg-blue-600 rounded-full"></div>
+                                            <span className="text-[10px] font-bold text-gray-400">Achieved</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-end justify-between h-72 gap-6 md:gap-10 pl-16 pr-8 md:pl-20 md:pr-12 pb-2 relative">
+                                    {/* Y-Axis Guideline Lines */}
+                                    {[10, 8, 6, 4, 2, 0].map(val => (
+                                        <div key={val} className="absolute left-0 right-0 border-t border-gray-100 pointer-events-none" style={{ bottom: `${val * 10}%` }}>
+                                        </div>
+                                    ))}
+                                    
+                                    {/* Charts will be added here in the future */}
+                                    <div className="flex-1 flex items-center justify-center h-full text-gray-300 text-xs italic font-medium">
+                                        No academic data available yet
+                                    </div>
+                                </div>
+                                <div className="w-full h-0.5 bg-gray-50 mt-2 rounded-full"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Dashboard />);
+    </script>
 </body>
+
 </html>
