@@ -35,11 +35,23 @@ exports.getAttendance = async (req, res, next) => {
                 ids = Array.isArray(student_ids) ? student_ids : student_ids.split(',');
             }
         } else if (user.role === 'student') {
-            // Use correct student_id from the login token
-            ids = [user.student_id]; 
+            // Fetch current student_id from database using the immutable internal ID
+            // in the token. This prevents issues if the student_id string in the token is stale.
+            const student = await store.getStudentById(user.id);
+            ids = [student ? student.student_id : user.student_id]; 
         }
 
         const records = await store.getAttendanceByFilter(date, ids);
+        console.log(`[Attendance] Fetched ${records.length} records for IDs: [${ids.join(', ')}] on date: ${date || 'All'}`);
+        
+        // Prevent browser caching
+        res.set({
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Surrogate-Control': 'no-store'
+        });
+
         res.json(records);
     } catch (err) {
         next(err);

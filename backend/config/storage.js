@@ -1,7 +1,9 @@
 const fs = require('fs').promises;
 const path = require('path');
+const mongoose = require('mongoose');
 const StudentDetail = require('../models/StudentDetail');
 const Mark = require('../models/Mark');
+const Attendance = require('../models/Attendance');
 
 const dataDir = path.join(__dirname, '..', 'data');
 const files = {
@@ -128,11 +130,37 @@ async function findStudentByNumber(student_number) {
 
 async function updateStudent(id, fields, student_number = null) {
   let updated = null;
+  
+  // 1. Get current student data to check if student_id is changing
+  // ONLY call findById if id is a valid ObjectId hex string to avoid CastError
+  const isValidId = mongoose.Types.ObjectId.isValid(id);
+  const currentStudent = isValidId ? await StudentDetail.findById(id) : null;
+  const oldStudentId = currentStudent ? currentStudent.student_id : null;
+  const newStudentId = fields.student_id;
+
+  // 2. Perform the update
   if (student_number) {
     const Model = getStudentModel(`${student_number}_student`);
     updated = await Model.findByIdAndUpdate(id, fields, { new: true });
   }
   if (!updated) updated = await StudentDetail.findByIdAndUpdate(id, fields, { new: true });
+
+  // 3. If student_id changed, migrate related data
+  if (updated && oldStudentId && newStudentId && oldStudentId !== newStudentId) {
+    console.log(`Migrating data for student ${id}: ${oldStudentId} -> ${newStudentId}`);
+    try {
+      // Update Mark collection
+      await Mark.updateMany({ student_id: oldStudentId }, { $set: { student_id: newStudentId } });
+      
+      // Update Attendance collection
+      await Attendance.updateMany({ student_id: oldStudentId }, { $set: { student_id: newStudentId } });
+      
+      console.log(`Successfully migrated marks and attendance for ${newStudentId}`);
+    } catch (err) {
+      console.error('Error migrating student data:', err);
+    }
+  }
+
   return !!updated;
 }
 
@@ -149,6 +177,11 @@ async function removeStudent(id, student_number = null) {
 async function createAdmin(obj) { const admins = await load('admins'); const id = nextId(admins); const item = { id, username: obj.username, password_hash: obj.password_hash || null, full_name: obj.full_name || null, email: obj.email || null, created_at: new Date().toISOString() }; admins.push(item); await save('admins', admins); return { insertId: id }; }
 async function findAdminByUsername(username) { const a = await load('admins'); return a.find(x => x.username === username); }
 async function getAdminById(id) { const a = await load('admins'); return a.find(x => String(x.id) === String(id)); }
+
+async function resolveStudentId(id) {
+  const student = await getStudentById(id);
+  return student ? student.student_id : id;
+}
 
 /* Marks (Unified MongoDB Collection) */
 async function createMark(obj) {
@@ -186,6 +219,14 @@ async function saveMarksBatch(studentId, semester, examType, records, published 
   await Model.insertMany(docs);
   return { success: true };
 }
+async function publishMarksBatch(studentId, semester, examType) {
+  const Model = Mark.model;
+  const result = await Model.updateMany(
+    { student_id: studentId, semester, exam_type: examType },
+    { $set: { published: true } }
+  );
+  return { success: true, count: result.modifiedCount };
+}
 async function unpublishMarksBatch(studentId, semester, examType) {
   const Model = Mark.model;
   const result = await Model.updateMany(
@@ -207,8 +248,9 @@ async function getAllMarks() {
   return [];
 }
 
-async function getMarksByStudent(studentId, filters = {}, isStudent = false) {
+async function getMarksByStudent(idOrString, filters = {}, isStudent = false) {
   const Model = Mark.model;
+  const studentId = await resolveStudentId(idOrString);
   const query = { student_id: studentId };
   if (filters.semester) query.semester = filters.semester;
   if (filters.exam_type) query.exam_type = filters.exam_type;
@@ -241,6 +283,39 @@ async function updateMark(id, fields) {
   const updated = await Model.findOneAndUpdate(query, fields, { new: true });
   return !!updated;
 }
+async function getPerformanceAverages(idOrString) {
+  const Model = Mark.model;
+  const studentId = await resolveStudentId(idOrString);
+  const metrics = await Model.aggregate([
+    { $match: { student_id: studentId } },
+    { $group: {
+        _id: { semester: "$semester", exam_type: "$exam_type" },
+        avgMark: { $avg: "$mark" }
+      }
+    },
+    { $group: {
+        _id: "$_id.semester",
+        metrics: {
+          $push: {
+            k: { $toLower: { $replaceAll: { input: "$_id.exam_type", find: " ", replacement: "" } } },
+            v: { $round: ["$avgMark", 2] }
+          }
+        }
+      }
+    },
+    { $project: {
+        semester: "$_id",
+        data: { $arrayToObject: "$metrics" },
+        _id: 0
+      }
+    }
+  ]);
+
+  // Order semesters correctly (I, II, III...)
+  const semesterOrder = { 'I':1, 'II':2, 'III':3, 'IV':4, 'V':5, 'VI':6, 'VII':7, 'VIII':8 };
+  return metrics.sort((a,b) => (semesterOrder[a.semester] || 99) - (semesterOrder[b.semester] || 99));
+}
+
 async function removeMark(id, studentId) {
   const Model = Mark.model;
   const query = { _id: id };
@@ -294,7 +369,7 @@ async function findStudentsByFilter(department, year) {
   });
 }
 
-const Attendance = require('../models/Attendance');
+/* Reports helpers */
 
 async function saveAttendance(records) {
   // Use bulkWrite for efficiency and to handle upserts (update if exists, insert if not)
@@ -321,8 +396,11 @@ async function saveAttendance(records) {
 }
 
 async function getAttendanceByFilter(date, studentIds) {
+  // Resolve any possible internal IDs in studentIds to official student_id strings
+  const resolvedIds = await Promise.all(studentIds.map(id => resolveStudentId(id)));
+  
   // Query attendance for specific students. Optionally filter by date.
-  const query = { student_id: { $in: studentIds } };
+  const query = { student_id: { $in: resolvedIds } };
   if (date) {
     query.date = date;
   }
@@ -335,9 +413,10 @@ module.exports = {
   createStudent, getAllStudents, getStudentById, findStudentByNumber, updateStudent, removeStudent,
   createAdmin, findAdminByUsername, getAdminById,
   createMark, getAllMarks, getMarksByStudent, getMarksBySubject, updateMark, removeMark,
-  saveMarksBatch, unpublishMarksBatch, removeMarksBatch,
+  saveMarksBatch, publishMarksBatch, unpublishMarksBatch, removeMarksBatch,
   resolveYear, studentSummary, topper, subjectTopper, passFail, subjectStats,
   findStudentsByFilter,
   saveAttendance,
-  getAttendanceByFilter
+  getAttendanceByFilter,
+  getPerformanceAverages
 };

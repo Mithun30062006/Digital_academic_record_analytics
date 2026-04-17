@@ -75,15 +75,18 @@
                     try {
                         const token = localStorage.getItem('token');
                         const studentId = localStorage.getItem('student_id');
+                        const dbId = localStorage.getItem('db_id');
 
-                        if (!token || !studentId) {
+                        const role = localStorage.getItem('role');
+
+                        if (!token || (!studentId && role !== 'admin')) {
                             window.location.href = 'index.html';
                             return;
                         }
 
                         // Fetch Profile & Departments in parallel
                         const [profileRes, deptsRes] = await Promise.all([
-                            fetch(`${API_URL}/students/${studentId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                            fetch(`${API_URL}/students/${dbId || studentId}`, { headers: { 'Authorization': `Bearer ${token}` } }),
                             fetch(`${API_URL}/departments/all`, { headers: { 'Authorization': `Bearer ${token}` } })
                         ]);
 
@@ -93,6 +96,15 @@
 
                             setProfile(profileData);
                             setDepartments(deptsData);
+
+                            // Sync student_id in localStorage if it changed
+                            if (profileData.student_id && profileData.student_id !== studentId) {
+                                localStorage.setItem('student_id', profileData.student_id);
+                            }
+                            // Also ensure db_id is set
+                            if (profileData.id && !dbId) {
+                                localStorage.setItem('db_id', profileData.id);
+                            }
 
                             // No pre-selection, let user choose from dropdowns as per requirements
                             setSelectedSemester('');
@@ -344,7 +356,6 @@
                                                     <tr className="bg-gray-50/50">
                                                         <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Code</th>
                                                         <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Course Name</th>
-                                                        <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Type</th>
                                                          <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Credit</th>
                                                         <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Faculty</th>
                                                         <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Material</th>
@@ -358,9 +369,6 @@
                                                             </td>
                                                             <td className="px-6 py-5">
                                                                 <p className="font-bold text-gray-800 text-sm">{course.name}</p>
-                                                            </td>
-                                                            <td className="px-6 py-5">
-                                                                <span className="text-[10px] font-bold px-2 py-1 rounded-full border border-gray-100 bg-gray-50 text-gray-500 uppercase tracking-wider">{course.type}</span>
                                                             </td>
                                                             <td className="px-6 py-5 text-center">
                                                                 <span className="font-extrabold text-gray-700">{course.credit}</span>

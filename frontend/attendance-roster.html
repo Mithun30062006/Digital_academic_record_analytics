@@ -147,6 +147,18 @@
                     <button class="tab-btn" onclick="selectSession(4)">Session 4</button>
                 </div>
 
+                <!-- Bulk Actions Row -->
+                <div class="bulk-actions-row" style="display: flex; gap: 10px; margin-bottom: 20px; padding: 0 5px;">
+                    <button class="bulk-btn present" onclick="bulkMark('present')" 
+                        style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #16a34a; background: #dcfce7; color: #16a34a; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        <i class="fa-solid fa-check-double"></i> MARK ALL PRESENT (TODAY)
+                    </button>
+                    <button class="bulk-btn absent" onclick="bulkMark('absent')" 
+                        style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #dc2626; background: #fee2e2; color: #dc2626; font-size: 11px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                        <i class="fa-solid fa-xmark"></i> MARK ALL ABSENT (TODAY)
+                    </button>
+                </div>
+
                 <!-- Student List -->
                 <div class="roster-list-section">
                     <!-- Special Action Status Box -->
@@ -395,7 +407,7 @@
 
 
 
-        // Present / Absent Active State Toggle Logic
+        // Mark a single student for ONE session
         function markAttendance(button, status) {
             const card = button.closest('.student-card');
             const studentId = card.dataset.id;
@@ -413,6 +425,28 @@
                 absentBtn.classList.add('active-absent');
                 attendanceData[currentSession][studentId] = 'absent';
             }
+        }
+
+        // NEW: Mark ALL students for ALL 4 sessions
+        function bulkMark(status) {
+            if (!confirm(`Are you sure you want to mark everyone as ${status.toUpperCase()} for all 4 sessions? This will overwrite current changes for this date.`)) {
+                return;
+            }
+
+            studentRoster.forEach(student => {
+                const id = student.id;
+                // Mark for all 4 sessions
+                for (let s = 1; s <= 4; s++) {
+                    attendanceData[s][id] = status;
+                }
+            });
+            
+            // Refresh the current view
+            const list = document.getElementById('studentList');
+            const saveBtn = document.querySelector('.save-attendance-btn');
+            
+            alert(`Everyone marked as ${status.toUpperCase()}. Don't forget to SAVE ATTENDANCE below!`);
+            renderRoster();
         }
 
         // Search / filter students by name or ID

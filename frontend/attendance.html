@@ -215,15 +215,31 @@
 
             const token = localStorage.getItem('token');
             const studentId = localStorage.getItem('student_id');
-            if (!token || !studentId) return;
+            const dbId = localStorage.getItem('db_id');
+            const role = localStorage.getItem('role');
+            if (!token || (!studentId && role !== 'admin')) {
+                window.location.href = 'index.html';
+                return;
+            }
 
             try {
-                const res = await fetch(`${API_URL}/students/${studentId}`, {
+                // Try lookup by db_id first, fallback to student_id
+                const res = await fetch(`${API_URL}/students/${dbId || studentId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
                     studentYear = data.year;
+                    
+                    // Sync student_id in localStorage if it changed
+                    if (data.student_id && data.student_id !== studentId) {
+                        localStorage.setItem('student_id', data.student_id);
+                    }
+                    // Also ensure db_id is set
+                    if (data.id && !dbId) {
+                        localStorage.setItem('db_id', data.id);
+                    }
+
                     const semesterInfo = document.getElementById('studentSemesterInfo');
                     if (semesterInfo) {
                         semesterInfo.textContent = `Batch ${data.batch || '2023-2024'} • Semester ${data.semester || 'I'}`;
@@ -298,6 +314,7 @@
                 return;
             }
 
+            const studentId = localStorage.getItem('student_id');
             const selectedDate = document.getElementById('attendance-date').value;
             
             // Fetch special action status separately
@@ -305,8 +322,8 @@
 
             try {
 
-                // 1. Fetch ALL attendance for summary
-                const summaryRes = await fetch(`${API_URL}/attendance`, {
+                // Refresh records using the student_id from current profile to ensure synchronization
+                const summaryRes = await fetch(`${API_URL}/attendance?student_ids=${studentId}&v=${Date.now()}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -316,7 +333,7 @@
                 }
 
                 // 2. Fetch for selected date for breakdown
-                const dailyRes = await fetch(`${API_URL}/attendance?date=${selectedDate}`, {
+                const dailyRes = await fetch(`${API_URL}/attendance?date=${selectedDate}&student_ids=${studentId}&v=${Date.now()}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
@@ -342,40 +359,37 @@
             const specialDates = specialActions.map(a => a.date);
 
             let daysPresent = 0;
-            let daysAbsent = 0;
+            let totalWorkingDays = 0;
 
             Object.keys(groupedByDate).forEach(date => {
                 // EXCLUDE dates marked as special (Sunday, Leave, Semester)
                 if (specialDates.includes(date)) return;
 
                 const daySessions = groupedByDate[date];
+                
+                // Block-Aware Stabilization: 
+                // Only count a block (0.5) if it has been "taken" (at least one session exists)
+                const morningExists = daySessions[1] !== undefined || daySessions[2] !== undefined;
+                const afternoonExists = daySessions[3] !== undefined || daySessions[4] !== undefined;
 
-                // Block 1 (Sessions 1 & 2)
-                if (daySessions[1] || daySessions[2]) {
-                    if (daySessions[1] === 'present' && daySessions[2] === 'present') {
-                        daysPresent += 0.5;
-                    } else {
-                        daysAbsent += 0.5;
-                    }
+                totalWorkingDays += (morningExists ? 0.5 : 0) + (afternoonExists ? 0.5 : 0);
+
+                // Credit 0.5 only if BOTH sessions in the block are present
+                if (daySessions[1] === 'present' && daySessions[2] === 'present') {
+                    daysPresent += 0.5;
                 }
 
-                // Block 2 (Sessions 3 & 4)
-                if (daySessions[3] || daySessions[4]) {
-                    if (daySessions[3] === 'present' && daySessions[4] === 'present') {
-                        daysPresent += 0.5;
-                    } else {
-                        daysAbsent += 0.5;
-                    }
+                if (daySessions[3] === 'present' && daySessions[4] === 'present') {
+                    daysPresent += 0.5;
                 }
             });
 
-
-            const totalDaysMarked = daysPresent + daysAbsent;
-            const percentage = totalDaysMarked > 0 ? Math.round((daysPresent / totalDaysMarked) * 100) : 0;
+            const daysAbsent = totalWorkingDays - daysPresent;
+            const percentage = totalWorkingDays > 0 ? Math.round((daysPresent / totalWorkingDays) * 100) : 0;
 
             // Update UI elements
             document.querySelectorAll('p.text-4xl.font-black.text-gray-800')[0].textContent = `${percentage}%`;
-            document.querySelectorAll('p.text-lg.font-black.text-gray-800')[0].textContent = totalDaysMarked;
+            document.querySelectorAll('p.text-lg.font-black.text-gray-800')[0].textContent = totalWorkingDays;
             document.querySelectorAll('p.text-lg.font-black.text-green-600')[0].textContent = daysPresent;
             document.querySelectorAll('p.text-lg.font-black.text-red-600')[0].textContent = daysAbsent;
             document.querySelector('.percentage').textContent = `${percentage}%`;

@@ -20,6 +20,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
       localStorage.setItem('role', role);
       if (role === 'student' && j.student) {
         localStorage.setItem('student_id', j.student.student_id);
+        localStorage.setItem('db_id', j.student._id);
       }
       location.href = role === 'admin' ? 'admin.html' : 'student.html';
     } else {

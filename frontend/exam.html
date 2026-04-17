@@ -140,7 +140,6 @@
                                     Venue</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-50">
                         <tbody id="scheduleBody" class="divide-y divide-gray-50">
                             <!-- Data will be injected here -->
                         </tbody>
@@ -180,22 +179,28 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const token = localStorage.getItem('token');
             const studentId = localStorage.getItem('student_id');
-            if (!token || !studentId) {
+            const dbId = localStorage.getItem('db_id');
+            const role = localStorage.getItem('role');
+
+            if (!token || (!studentId && role !== 'admin')) {
                 window.location.href = 'index.html';
                 return;
             }
 
             try {
-                // 1. Fetch Student Profile to get Department and Semester
-                const profileRes = await fetch(`${API_URL}/students/${studentId}`, {
+                // 1. Fetch Student Profile
+                const profileRes = await fetch(`${API_URL}/students/${dbId || studentId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
-                if (!profileRes.ok) throw new Error('Failed to fetch profile');
-                
-                const studentData = await profileRes.json();
-                const department = studentData.department;
-                const semester = studentData.semester || 'I';
+                if (profileRes.ok) {
+                    const studentData = await profileRes.json();
+                    
+                    // Sync db_id if missing
+                    if (studentData.id && !dbId) localStorage.setItem('db_id', studentData.id);
+
+                    const department = studentData.department;
+                    const semester = studentData.semester || 'I';
 
                 document.getElementById('studentDept').textContent = department || 'N/A';
                 document.getElementById('studentAcademicInfo').textContent = semester;
@@ -206,17 +211,21 @@
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
 
-                if (scheduleRes.ok) {
-                    const schedules = await scheduleRes.json();
-                    if (schedules && schedules.length > 0) {
-                        const latestSchedule = schedules[0]; // Get the most recent one
-                        renderSchedule(latestSchedule);
+                        if (scheduleRes.ok) {
+                            const schedules = await scheduleRes.json();
+                            if (schedules && schedules.length > 0) {
+                                const latestSchedule = schedules[0]; // Get the most recent one
+                                renderSchedule(latestSchedule);
+                            } else {
+                                showNoSchedule();
+                            }
+                        } else {
+                            showNoSchedule();
+                        }
                     } else {
+                        // Profile fetch failed
                         showNoSchedule();
                     }
-                } else {
-                    showNoSchedule();
-                }
 
             } catch (err) {
                 console.error('Error:', err);

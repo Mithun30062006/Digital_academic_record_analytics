@@ -145,7 +145,7 @@
 
     .record-form-grid {
       display: grid;
-      grid-template-columns: 1fr 2fr 1.2fr 0.8fr;
+      grid-template-columns: 1fr 2fr 0.8fr;
       gap: 16px;
     }
 
@@ -473,7 +473,6 @@
                 <th>COURSE CODE</th>
                 <th>COURSE NAME</th>
                 <th>MARKS</th>
-                <th style="width: 100px;">TYPE</th>
                 <th style="width: 80px;">ACTION</th>
               </tr>
             </thead>
@@ -641,33 +640,38 @@
         }
       });
  
-      window.checkSelection = async function() {
-        const studentSelect = document.getElementById('studentSelect');
-        const yearSelect = document.getElementById('yearSelect');
-        const examSelect = document.getElementById('examSelect');
-        const studentSearchInput = document.getElementById('studentSearchInput');
-        const summaryStudent = document.getElementById('summaryStudent');
-        const summaryYear = document.getElementById('summaryYear');
-        const summaryExam = document.getElementById('summaryExam');
-        const marksContent = document.getElementById('marksContent');
-        
-        const studentId = studentSelect.value;
-        const year = yearSelect.value;
-        const examType = examSelect.options[examSelect.selectedIndex].text;
- 
-        if (studentId && year && examSelect.value) {
-          // Update summary fields
-          summaryStudent.innerText = studentSearchInput.value;
-          summaryYear.innerText = year;
-          summaryExam.innerText = examType;
-          marksContent.style.display = 'block';
- 
-          // Check for history
-          await loadHistory();
-        } else {
-          marksContent.style.display = 'none';
+        window.checkSelection = async function() {
+          const studentSelect = document.getElementById('studentSelect');
+          const yearSelect = document.getElementById('yearSelect');
+          const examSelect = document.getElementById('examSelect');
+          const studentSearchInput = document.getElementById('studentSearchInput');
+          const summaryStudent = document.getElementById('summaryStudent');
+          const summaryYear = document.getElementById('summaryYear');
+          const summaryExam = document.getElementById('summaryExam');
+          const marksContent = document.getElementById('marksContent');
+          const recordList = document.getElementById('recordList');
+          
+          const studentId = studentSelect.value;
+          const year = yearSelect.value;
+          const examType = examSelect.options[examSelect.selectedIndex].text;
+   
+          if (studentId && year && examSelect.value) {
+            // Update summary fields
+            summaryStudent.innerText = studentSearchInput.value;
+            summaryYear.innerText = year;
+            summaryExam.innerText = examType;
+            marksContent.style.display = 'block';
+
+            // Clear entry form when filters change to avoid stale data
+            recordList.innerHTML = '';
+            updateRecordCount();
+   
+            // Check for history
+            await loadHistory();
+          } else {
+            marksContent.style.display = 'none';
+          }
         }
-      }
  
       window.loadHistory = async function() {
         const studentSelect = document.getElementById('studentSelect');
@@ -700,7 +704,6 @@
                     <td>${m.course_code}</td>
                     <td>${m.course_name || '-'}</td>
                     <td style="font-weight: 600;">${m.mark}</td>
-                    <td><span class="badge" style="background:#f1f5f9; color:#475569;">${m.course_type}</span></td>
                     <td>
                       <button class="delete-record-btn" onclick="deleteHistoryMark('${m.id}')">
                         <i class="fa-solid fa-trash-can"></i>
@@ -725,11 +728,17 @@
                  toggleBtn.style.borderColor = '';
                  toggleBtn.className = 'btn btn-publish'; 
                }
-             } else {
-              // No data - show entry form
-              historyContent.style.display = 'none';
-              entrySection.style.display = 'block';
-            }
+              } else {
+               // No data - show entry form
+               historyContent.style.display = 'none';
+               entrySection.style.display = 'block';
+               
+               // For "add from new", ensure a fresh blank card is ready
+               const list = document.getElementById('recordList');
+               if (list.children.length === 0) {
+                 addNewRecord();
+               }
+             }
           }
         } catch (err) {
           console.error('History Fetch Error:', err);
@@ -759,7 +768,6 @@
                 const card = addNewRecord();
                 card.querySelector('.course-code').value = m.course_code;
                 card.querySelector('.course-name').value = m.course_name || '';
-                card.querySelector('.course-type').value = m.course_type;
                 card.querySelector('.student-mark').value = m.mark;
               });
             } else {
@@ -776,14 +784,62 @@
       };
 
       window.publishToStudent = async function() {
+        const studentId = studentSelect.value;
+        const year = yearSelect.value;
+        const examSelectEl = document.getElementById('examSelect');
+        const examType = examSelectEl.options[examSelectEl.selectedIndex].text;
         const studentRaw = studentSearchInput.value;
         const studentName = studentRaw.split('(')[0].trim();
-        
-        // Triggers the save operation first with is_publish: true (explicitly)
-        const success = await saveMarks(true); 
-        
-        if (success) {
-          showToast(`Successfully published to ${studentName}`);
+        const historyContent = document.getElementById('historyContent');
+
+        // Logic Check: If we are in History mode, we publish the existing records directly
+        if (historyContent.style.display === 'block') {
+          try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/marks/publish-batch`, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+              },
+              body: JSON.stringify({ 
+                student_id: studentId,
+                semester: year,
+                exam_type: examType 
+              })
+            });
+
+            if (response.ok) {
+              showToast(`Successfully published to ${studentName}`);
+              await loadHistory(); // Refresh view
+              return true;
+            } else {
+              showToast("Failed to publish existing marks.", "error");
+              return false;
+            }
+          } catch (err) {
+            console.error('Publish Existing Marks Error:', err);
+            showToast("Failed to connect to server.", "error");
+            return false;
+          }
+        } else {
+          // Fresh entries - use the existing save-logic
+          const success = await saveMarks(true); 
+          if (success) {
+            showToast(`Successfully published to ${studentName}`);
+          }
+          return success;
+        }
+      };
+
+      window.toggleHistoryPublish = async function() {
+        const toggleBtn = document.getElementById('historyToggleBtn');
+        const isCurrentlyPublished = toggleBtn.innerText === 'Remove Student';
+
+        if (isCurrentlyPublished) {
+          await removeStudentMarks();
+        } else {
+          await publishToStudent();
         }
       };
 
@@ -798,7 +854,8 @@
 
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch(`${API_URL}/marks/batch-delete?student_id=${studentId}&semester=${year}&exam_type=${examType}`, {
+          const url = `${API_URL}/marks/batch-delete?student_id=${encodeURIComponent(studentId)}&semester=${encodeURIComponent(year)}&exam_type=${encodeURIComponent(examType)}`;
+          const response = await fetch(url, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
           });
@@ -808,7 +865,8 @@
             showToast(`Successfully hidden results from ${studentName}`);
             await loadHistory(); 
           } else {
-            showToast("Failed to hide marks.", "error");
+            const errData = await response.json().catch(() => ({}));
+            showToast(errData.message || "Failed to hide marks.", "error");
           }
         } catch (err) {
           console.error('Remove Marks Error:', err);
@@ -884,13 +942,6 @@
             <input type="text" class="input-style course-name" placeholder="Enter course name">
           </div>
           <div class="field-group">
-            <label class="field-label">Course Type</label>
-            <select class="input-style course-type" style="padding: 8px 10px; cursor: pointer;">
-              <option value="Theory">Theory</option>
-              <option value="Lab">Lab</option>
-            </select>
-          </div>
-          <div class="field-group">
             <label class="field-label">Mark</label>
             <input type="number" class="input-style student-mark" placeholder="0-100">
           </div>
@@ -956,7 +1007,7 @@
         batchData.records.push({
           course_code: courseCode,
           course_name: card.querySelector('.course-name').value,
-          course_type: card.querySelector('.course-type').value,
+          course_type: 'Theory', // Default to Theory
           mark: mark
         });
       });

@@ -54,187 +54,188 @@
         </div>
 
         <!-- Main Content Area -->
-        <main class="flex-1 p-8 overflow-y-auto bg-gray-50">
-            <div class="max-w-5xl mx-auto">
-                <header class="mb-8">
-                    <h1 class="text-3xl font-extrabold text-gray-800">Academic Results</h1>
-                </header>
+    <main class="flex-1 p-8 overflow-y-auto bg-gray-50">
+        <div class="max-w-5xl mx-auto">
+            <header class="mb-8 flex justify-between items-center">
+                <h1 class="text-3xl font-extrabold text-gray-800">Academic Results</h1>
+            </header>
 
-                <section class="bg-orange-50 rounded-3xl p-8 mb-8 border border-orange-100 shadow-sm">
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        <div>
-                            <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Student Name</p>
-                            <p id="studentNameLabel" class="text-sm font-bold text-orange-900">Loading...</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Registration ID</p>
-                            <p id="studentIdLabel" class="text-sm font-bold text-orange-900">Loading...</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Semester</p>
-                            <p id="semesterLabel" class="text-sm font-bold text-orange-900">-</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Exam Type</p>
-                            <p id="examLabel" class="text-sm font-bold text-orange-900">-</p>
-                        </div>
-                    </div>
-                </section>
-
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-gray-800">Performance Summary</h2>
-                </div>
-
-                <!-- Results Table -->
-                <section class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50/50 border-b border-gray-50">
-                                <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">S.No</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Course Code</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Course Name</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Type</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Mark</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Grade</th>
-                                <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsBody" class="divide-y divide-gray-50">
-                            <tr>
-                                <td colspan="7" class="px-6 py-10 text-center text-gray-400 font-bold uppercase tracking-widest italic animate-pulse">Fetching results...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
-
-                <!-- Summary Footer Card -->
-                <div class="bg-orange-500 rounded-3xl p-8 text-white shadow-xl shadow-orange-100 flex items-center justify-between">
+            <section class="bg-orange-50 rounded-3xl p-8 mb-8 border border-orange-100 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-orange-200">Overall Percentage</p>
-                        <p class="text-xs font-bold mt-1 text-orange-100 opacity-80">Aggregate performance across all subjects</p>
+                        <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Student Name</p>
+                        <p id="studentNameLabel" class="text-sm font-bold text-orange-900">Loading...</p>
                     </div>
-                    <p id="overallPercentage" class="text-6xl font-black">00%</p>
+                    <div>
+                        <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Registration ID</p>
+                        <p id="studentIdLabel" class="text-sm font-bold text-orange-900">Loading...</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Exam Type</p>
+                        <p id="examTypeLabel" class="text-sm font-bold text-orange-900">All Published</p>
+                    </div>
                 </div>
+            </section>
+
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-800">Performance Summary</h2>
             </div>
-        </main>
-    </div>
 
-    <script src="js/config.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', loadPageData);
+            <!-- Results Table -->
+            <section class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50/50 border-b border-gray-50">
+                            <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">S.No</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Course Code</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Course Name</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Mark</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Grade</th>
+                            <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody" class="divide-y divide-gray-50">
+                        <tr>
+                            <td colspan="7" class="px-6 py-10 text-center text-gray-400 font-bold uppercase tracking-widest italic animate-pulse">Fetching results...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
 
-        async function loadPageData() {
-            const token = localStorage.getItem('token');
-            const studentId = localStorage.getItem('student_id');
+            <!-- Summary Footer Card -->
+            <div id="summaryCard" class="bg-orange-500 rounded-3xl p-8 text-white shadow-xl shadow-orange-100 flex items-center justify-between invisible">
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-orange-200">Result Percentage</p>
+                    <p class="text-xs font-bold mt-1 text-orange-100 opacity-80">Performance based on selected filters</p>
+                </div>
+                <p id="overallPercentage" class="text-6xl font-black">--%</p>
+            </div>
+        </div>
+    </main>
+</div>
 
-            if (!token || !studentId) {
-                window.location.href = 'index.html';
-                return;
-            }
+<script src="js/config.js"></script>
+<script>
+    let allMarks = [];
+    document.addEventListener('DOMContentLoaded', loadPageData);
 
-            try {
-                // 1. Fetch Profile for header
-                const profileRes = await fetch(`${API_URL}/students/${studentId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (profileRes.ok) {
-                    const profile = await profileRes.json();
-                    document.getElementById('studentNameLabel').innerText = profile.name || 'Student';
-                    document.getElementById('studentIdLabel').innerText = profile.student_id || studentId;
-                }
+    async function loadPageData() {
+        const token = localStorage.getItem('token');
+        const studentId = localStorage.getItem('student_id');
+        const dbId = localStorage.getItem('db_id');
+        const role = localStorage.getItem('role');
 
-                // 2. Fetch Results
-                const response = await fetch(`${API_URL}/marks/student/${studentId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+        if (!token || (!studentId && role !== 'admin')) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const headers = { 'Authorization': `Bearer ${token}` };
+        const timestamp = Date.now();
+
+        try {
+            // 1. Fetch Profile
+            const profileRes = await fetch(`${API_URL}/students/${dbId || studentId}?v=${timestamp}`, { headers });
+            
+            if (profileRes.ok) {
+                const profile = await profileRes.json();
+                document.getElementById('studentNameLabel').innerText = profile.name || 'Student';
+                document.getElementById('studentIdLabel').innerText = profile.student_id || studentId;
+                
+                // Sync identity in localStorage
+                localStorage.setItem('student_id', profile.student_id);
+                if (profile.id) localStorage.setItem('db_id', profile.id);
+
+                const resolvedId = profile.id || profile.student_id || dbId || studentId;
+
+                // 2. Fetch All Results
+                const response = await fetch(`${API_URL}/marks/student/${resolvedId}?v=${timestamp}`, { headers });
 
                 if (response.ok) {
-                    const marks = await response.json();
-                    if (!marks || marks.length === 0) {
+                    allMarks = await response.json();
+                    
+                    if (!allMarks || allMarks.length === 0) {
                         showNoResults();
                     } else {
-                        renderResults(marks);
+                        renderResults(allMarks);
                     }
                 } else {
                     showNoResults();
                 }
-            } catch (err) {
-                console.error('Fetch Error:', err);
+            } else {
                 showNoResults();
             }
+        } catch (err) {
+            console.error('Fetch Error:', err);
+            showNoResults();
         }
+    }
 
-        function renderResults(marks) {
-            const tbody = document.getElementById('resultsBody');
-            tbody.innerHTML = '';
 
-            if (!marks || marks.length === 0) {
-                showNoResults();
-                return;
-            }
+    function renderResults(marks) {
+        const tbody = document.getElementById('resultsBody');
+        tbody.innerHTML = '';
 
-            // Set Semester and Exam from the first record
-            const first = marks[0];
-            document.getElementById('semesterLabel').innerText = first.semester || '-';
-            document.getElementById('examLabel').innerText = first.exam_type || '-';
+        // Dynamic Label for Exam Type
+        const examsFound = [...new Set(marks.map(m => m.exam_type))];
+        const order = ['Half 1', 'Half 2', 'Model', 'Semester'];
+        const sortedExams = examsFound.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+        document.getElementById('examTypeLabel').innerText = sortedExams.join(', ') || 'All Published';
 
-            let totalMarks = 0;
-            marks.forEach((m, index) => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-gray-50/50 transition-colors';
-                
-                const sno = (index + 1).toString().padStart(2, '0');
-                const markValue = Number(m.mark);
-                totalMarks += markValue;
-                
-                const grade = getGrade(markValue);
-                const isPass = markValue >= 50;
-                const statusColor = isPass ? 'blue' : 'red';
-                const statusText = isPass ? 'PASS' : 'FAIL';
+        let totalMarks = 0;
+        marks.forEach((m, index) => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-gray-50/50 transition-colors';
+            
+            const sno = (index + 1).toString().padStart(2, '0');
+            const markValue = Number(m.mark);
+            totalMarks += markValue;
+            
+            const grade = getGrade(markValue);
+            const isPass = markValue >= 50;
+            const statusColor = isPass ? 'blue' : 'red';
+            const statusText = isPass ? 'PASS' : 'FAIL';
 
-                tr.innerHTML = `
-                    <td class="px-6 py-5 text-sm font-bold text-gray-400">${sno}</td>
-                    <td class="px-6 py-5 font-bold text-gray-800">${m.course_code}</td>
-                    <td class="px-6 py-5 text-sm font-semibold text-gray-600">${m.course_name || '-'}</td>
-                    <td class="px-6 py-5 text-center">
-                        <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">${m.course_type}</span>
-                    </td>
-                    <td class="px-6 py-5 text-sm font-extrabold text-gray-800 text-center">${markValue}</td>
-                    <td class="px-6 py-5 text-sm font-extrabold text-blue-600 text-center">${grade}</td>
-                    <td class="px-6 py-5 text-right">
-                        <span class="bg-${statusColor}-50 text-${statusColor}-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm">${statusText}</span>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            // Calculate Overall Percentage (Assuming max marks 100 per subject)
-            const percentage = Math.round(totalMarks / marks.length);
-            document.getElementById('overallPercentage').innerText = `${percentage}%`;
-        }
-
-        function showNoResults() {
-            const tbody = document.getElementById('resultsBody');
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="px-6 py-10 text-center text-gray-400 font-bold uppercase tracking-widest italic">No results updated yet</td>
-                </tr>
+            tr.innerHTML = `
+                <td class="px-6 py-5 text-sm font-bold text-gray-400">${sno}</td>
+                <td class="px-6 py-5 font-bold text-gray-800">${m.course_code}</td>
+                <td class="px-6 py-5 text-sm font-semibold text-gray-600">${m.course_name || '-'}</td>
+                <td class="px-6 py-5 text-sm font-extrabold text-gray-800 text-center">${markValue}</td>
+                <td class="px-6 py-5 text-sm font-extrabold text-blue-600 text-center">${grade}</td>
+                <td class="px-6 py-5 text-right">
+                    <span class="bg-${statusColor}-50 text-${statusColor}-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest shadow-sm">${statusText}</span>
+                </td>
             `;
-            document.getElementById('semesterLabel').innerText = '-';
-            document.getElementById('examLabel').innerText = '-';
-            document.getElementById('overallPercentage').innerText = '00%';
-        }
+            tbody.appendChild(tr);
+        });
 
-        function getGrade(mark) {
-            if (mark >= 91) return 'O';
-            if (mark >= 81) return 'A+';
-            if (mark >= 71) return 'A';
-            if (mark >= 61) return 'B+';
-            if (mark >= 51) return 'B';
-            if (mark >= 50) return 'C';
-            return 'U / RA';
-        }
-    </script>
+        const percentage = Math.round(totalMarks / marks.length);
+        document.getElementById('overallPercentage').innerText = `${percentage}%`;
+        document.getElementById('summaryCard').classList.remove('invisible');
+    }
+
+    function showNoResults() {
+        const tbody = document.getElementById('resultsBody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="px-6 py-10 text-center text-gray-400 font-bold uppercase tracking-widest italic">No matching results found</td>
+            </tr>
+        `;
+        document.getElementById('examTypeLabel').innerText = '-';
+        document.getElementById('overallPercentage').innerText = '--%';
+        document.getElementById('summaryCard').classList.add('invisible');
+    }
+
+    function getGrade(mark) {
+        if (mark >= 91) return 'O';
+        if (mark >= 81) return 'A+';
+        if (mark >= 71) return 'A';
+        if (mark >= 61) return 'B+';
+        if (mark >= 51) return 'B';
+        if (mark >= 50) return 'C';
+        return 'U / RA';
+    }
+</script>
 </body>
 
 </html>

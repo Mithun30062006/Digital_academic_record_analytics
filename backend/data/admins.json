@@ -2,9 +2,9 @@
   {
     "id": "a",
     "username": "admin",
-    "password_hash": "$2a$10$dDziZqL0j1HI4dp2GxseLebmbRkQDC.yV4J/n95e6gOkacR1yIvu6",
+    "password_hash": "$2a$10$1XnvIeQGkkpzBhGbwfcIdeahIHdKiHb4XJqdAj3s5kdQWohaQQFWS",
     "full_name": "Default Admin",
     "email": "admin@example.com",
-    "created_at": "2026-04-07T07:53:05.716Z"
+    "created_at": "2026-04-09T08:01:47.199Z"
   }
 ]

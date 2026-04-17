@@ -1,22 +1,27 @@
-const Attendance = require('./models/Attendance');
+
 const mongoose = require('mongoose');
-require('dotenv').config({ path: './.env' });
+require('dotenv').config();
 
-async function cleanup() {
+async function cleanupTestData() {
     try {
-        const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mini_project';
-        await mongoose.connect(MONGO_URI);
-
-        const testIds = ['TEST001', 'TEST002'];
-        const result = await Attendance.deleteMany({ student_id: { $in: testIds } });
+        const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/mini_project';
+        await mongoose.connect(uri);
         
-        console.log(`Successfully removed ${result.deletedCount} test records from 'attendance' collection.`);
+        const Mark = mongoose.connection.collection('marks');
+        const sid = '26EEE001';
 
-        process.exit(0);
+        console.log(`Searching for test data for student ${sid}...`);
+        const result = await Mark.deleteMany({ 
+            student_id: sid, 
+            course_code: 'TEST101' 
+        });
+        
+        console.log(`Cleanup complete. Removed ${result.deletedCount} test records.`);
+
+        await mongoose.connection.close();
     } catch (err) {
-        console.error('Cleanup failed:', err);
-        process.exit(1);
+        console.error('Cleanup Failed:', err);
     }
 }
 
-cleanup();
+cleanupTestData();

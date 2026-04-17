@@ -1,0 +1,48 @@
+erDiagram
+    STUDENT ||--o{ MARK : "earns"
+    STUDENT ||--o{ ATTENDANCE : "maintains"
+    COURSE ||--o{ MARK : "belongs_to"
+    DEPARTMENT_SEMESTER ||--o{ COURSE : "includes"
+    DEPARTMENT_SEMESTER ||--|| EXAM_SCHEDULE : "has"
+
+    STUDENT {
+        string student_id PK
+        string name
+        string email
+        string batch
+        string department
+        string semester
+    }
+
+    COURSE {
+        string code PK
+        string name
+        string type
+        int credit
+        string faculty
+    }
+
+    MARK {
+        string _id PK
+        string student_id FK
+        string course_code FK
+        int mark
+        string exam_type
+        boolean published
+    }
+
+    ATTENDANCE {
+        string _id PK
+        string student_id FK
+        date date
+        int session
+        string status
+    }
+
+    EXAM_SCHEDULE {
+        string _id PK
+        string department
+        string year
+        string examType
+        boolean published
+    }
