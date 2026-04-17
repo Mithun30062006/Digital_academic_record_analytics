@@ -561,7 +561,7 @@
       async function loadStudents() {
         try {
           const token = localStorage.getItem('token');
-          const response = await fetch('http://localhost:3000/api/students', {
+          const response = await fetch(`${API_URL}/students`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           

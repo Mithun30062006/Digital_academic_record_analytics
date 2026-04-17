@@ -65,6 +65,7 @@
     <!-- Toast Container -->
     <div id="toastContainerRight" class="toast-container right"></div>
 
+    <script src="js/config.js"></script>
     <script>
         let scheduleData = {
             entries: []
@@ -256,7 +257,7 @@
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch('http://localhost:3000/api/exam-schedule', {
+                const response = await fetch(`${API_URL}/exam-schedule`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -296,7 +297,7 @@
                 if (!confirm('This schedule is visible to students. Do you want to remove it from their view?')) return;
 
                 try {
-                    const unpubRes = await fetch(`http://localhost:3000/api/exam-schedule/${scheduleData._id}/unpublish`, {
+                    const unpubRes = await fetch(`${API_URL}/exam-schedule/${scheduleData._id}/unpublish`, {
                         method: 'PATCH',
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -328,7 +329,7 @@
                         if (!scheduleData._id) return; // Save failed
                     }
 
-                    const pubRes = await fetch(`http://localhost:3000/api/exam-schedule/${scheduleData._id}/publish`, {
+                    const pubRes = await fetch(`${API_URL}/exam-schedule/${scheduleData._id}/publish`, {
                         method: 'PATCH',
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -375,7 +376,7 @@
 
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`http://localhost:3000/api/exam-schedule/${scheduleData._id}`, {
+                const response = await fetch(`${API_URL}/exam-schedule/${scheduleData._id}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`

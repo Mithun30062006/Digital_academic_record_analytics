@@ -413,6 +413,7 @@
             </div>
         </div>
     </div>
+    <script src="js/config.js"></script>
     <script>
         // State to hold fetched students
         let students = [];
@@ -421,7 +422,7 @@
         // Fetch students from the real API
         async function fetchStudents() {
             try {
-                const response = await fetch('http://localhost:3000/api/students', {
+                const response = await fetch(`${API_URL}/students`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -587,7 +588,7 @@
             const studentIdToUpdate = students[index].id; // The database _id
 
             try {
-                const response = await fetch(`http://localhost:3000/api/students/${studentIdToUpdate}`, {
+                const response = await fetch(`${API_URL}/students/${studentIdToUpdate}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -621,7 +622,7 @@
             }
 
             try {
-                const response = await fetch(`http://localhost:3000/api/students/${studentId}`, {
+                const response = await fetch(`${API_URL}/students/${studentId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
