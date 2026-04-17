@@ -1,29 +1,18 @@
 {
   "version": 2,
-  "builds": [
+
+  "rewrites": [
     {
-      "src": "backend/server.js",
-      "use": "@vercel/node"
+      "source": "/api/:path*",
+      "destination": "https://digital-academic-record-analytics.onrender.com/api/:path*"
     },
     {
-      "src": "frontend/**",
-      "use": "@vercel/static"
+      "source": "/uploads/:path*",
+      "destination": "https://digital-academic-record-analytics.onrender.com/uploads/:path*"
     }
   ],
+
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/server.js"
-    },
-    {
-      "src": "/uploads/(.*)",
-      "dest": "backend/server.js"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "frontend/favicon.ico",
-      "status": 404
-    },
     {
       "src": "/(css|js|img)/(.*)",
       "dest": "frontend/$1/$2"
