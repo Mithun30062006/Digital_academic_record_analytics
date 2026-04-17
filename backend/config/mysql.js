@@ -12,12 +12,16 @@ const pool = mysql.createPool({
 });
 
 async function testMySQLConnection() {
+    const dbHost = process.env.DB_HOST || 'localhost';
+    console.log(`Attempting to connect to MySQL on host: ${dbHost}`);
     try {
         const connection = await pool.getConnection();
         console.log('MySQL Connected Successfully to', process.env.DB_NAME || 'mini_project');
         connection.release();
     } catch (err) {
-        console.error('MySQL connection error:', err.message);
+        console.error('MySQL connection error!');
+        console.error('Attempted Host:', dbHost);
+        console.error('Error Details:', err.message);
         throw err;
     }
 }

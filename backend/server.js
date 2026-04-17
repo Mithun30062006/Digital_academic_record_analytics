@@ -41,11 +41,19 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 async function start() {
+  console.log('--- Server Initializing ---');
   try {
     await db.testConnection();
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+      console.log('=========================================');
+      console.log(`🚀 SERVER RUNNING ON PORT: ${PORT}`);
+      console.log('=========================================');
+    });
   } catch (err) {
-    console.error('Failed to start server:', err.message);
+    console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+    console.error('FATAL SYSTEM ERROR ON STARTUP:');
+    console.error(err.stack || err);
+    console.error('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
     process.exit(1);
   }
 }
