@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/config.js"></script>
 </head>
 
@@ -428,8 +429,17 @@
         }
 
         // NEW: Mark ALL students for ALL 4 sessions
-        function bulkMark(status) {
-            if (!confirm(`Are you sure you want to mark everyone as ${status.toUpperCase()} for all 4 sessions? This will overwrite current changes for this date.`)) {
+        async function bulkMark(status) {
+            const result = await Swal.fire({
+                title: 'Mark All?',
+                text: `Are you sure you want to mark everyone as ${status.toUpperCase()} for all 4 sessions? This will overwrite current changes for this date.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, overwrite!'
+            });
+            if (!result.isConfirmed) {
                 return;
             }
 
@@ -445,7 +455,7 @@
             const list = document.getElementById('studentList');
             const saveBtn = document.querySelector('.save-attendance-btn');
             
-            alert(`Everyone marked as ${status.toUpperCase()}. Don't forget to SAVE ATTENDANCE below!`);
+            Swal.fire('Updated!', `Everyone marked as ${status.toUpperCase()}. Don't forget to SAVE ATTENDANCE below!`, 'success');
             renderRoster();
         }
 
@@ -495,7 +505,7 @@
             const reason = document.getElementById('actionReason').value;
             
             if (!year) {
-                alert('Please select a year first.');
+                Swal.fire('Notice', 'Please select a year first.', 'warning');
                 return;
             }
 
@@ -513,7 +523,7 @@
                 });
 
                 if (res.ok) {
-                    alert(`Action for Year ${year} on ${date} submitted: ${reason}`);
+                    Swal.fire('Success', `Action for Year ${year} on ${date} submitted: ${reason}`, 'success');
                     toggleCalendarDropdown();
                     
                     // If the updated action affects the current view, refresh it
@@ -523,11 +533,11 @@
                     }
                 } else {
                     const data = await res.json();
-                    alert(`Failed to save action: ${data.message || 'Unknown error'}`);
+                    Swal.fire('Error', `Failed to save action: ${data.message || 'Unknown error'}`, 'error');
                 }
             } catch (err) {
                 console.error('Error submitting action:', err);
-                alert('Network error while saving action.');
+                Swal.fire('Error', 'Network error while saving action.', 'error');
             }
         }
 
@@ -572,7 +582,16 @@
         }
 
         async function deleteSpecialAction(year, date) {
-            if (!confirm(`Are you sure you want to delete this status for Year ${year === 'ALL' ? 'All' : year}?`)) {
+            const result = await Swal.fire({
+                title: 'Delete Status?',
+                text: `Are you sure you want to delete this status for Year ${year === 'ALL' ? 'All' : year}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Yes, delete it!'
+            });
+            if (!result.isConfirmed) {
                 return;
             }
 
@@ -586,16 +605,16 @@
                 });
 
                 if (res.ok) {
-                    alert('Status deleted successfully.');
+                    Swal.fire('Deleted!', 'Status deleted successfully.', 'success');
                     const currentYear = document.getElementById('filterYear').value;
                     fetchSpecialAction(currentYear);
                 } else {
                     const data = await res.json();
-                    alert(`Failed to delete status: ${data.message || 'Unknown error'}`);
+                    Swal.fire('Error', `Failed to delete status: ${data.message || 'Unknown error'}`, 'error');
                 }
             } catch (err) {
                 console.error('Error deleting special action:', err);
-                alert('Network error while deleting status.');
+                Swal.fire('Error', 'Network error while deleting status.', 'error');
             }
         }
 
@@ -606,7 +625,7 @@
             const token = localStorage.getItem('token');
             
             if (!token) {
-                alert('Session expired. Please login again.');
+                await Swal.fire('Session Expired', 'Please login again.', 'info');
                 window.location.href = 'index.html';
                 return;
             }
@@ -627,7 +646,7 @@
             }
 
             if (records.length === 0) {
-                alert('No attendance data to save. Please mark some students first.');
+                Swal.fire('Notice', 'No attendance data to save. Please mark some students first.', 'warning');
                 return;
             }
 
@@ -650,14 +669,14 @@
                 const result = await res.json();
                 
                 if (res.ok) {
-                    alert('Attendance for all sessions saved successfully!');
+                    Swal.fire('Saved!', 'Attendance for all sessions saved successfully!', 'success');
                     console.log('Save result:', result);
                 } else {
-                    alert(`Failed to save attendance: ${result.message || 'Unknown error'}`);
+                    Swal.fire('Error', `Failed to save attendance: ${result.message || 'Unknown error'}`, 'error');
                 }
             } catch (err) {
                 console.error('Save error:', err);
-                alert('Network error while saving attendance. Please try again.');
+                Swal.fire('Error', 'Network error while saving attendance. Please try again.', 'error');
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.textContent = originalText;

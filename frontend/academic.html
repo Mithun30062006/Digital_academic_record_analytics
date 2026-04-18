@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="js/config.js"></script>
   <style>
     /* Card Entry Styles (Adapted from Exam Schedule) */
@@ -850,7 +851,16 @@
         const studentRaw = studentSearchInput.value;
         const studentName = studentRaw.split('(')[0].trim();
 
-        if (!confirm(`Are you sure you want to hide marks for ${studentName} from the student portal?`)) return;
+        const result = await Swal.fire({
+          title: 'Hide Results?',
+          text: `Are you sure you want to hide marks for ${studentName} from the student portal?`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ef4444',
+          cancelButtonColor: '#94a3b8',
+          confirmButtonText: 'Yes, hide them!'
+        });
+        if (!result.isConfirmed) return;
 
         try {
           const token = localStorage.getItem('token');
@@ -891,8 +901,17 @@
           showToast('Student selection not found', 'error');
           return;
         }
-        if (!confirm('Are you sure you want to delete this mark entry?')) return;
-        try {
+        const result = await Swal.fire({
+          title: 'Delete Mark?',
+          text: 'Are you sure you want to delete this mark entry? This cannot be undone.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ef4444',
+          cancelButtonColor: '#94a3b8',
+          confirmButtonText: 'Yes, delete it!'
+        });
+        if (!result.isConfirmed) return;
+        try { 
           const token = localStorage.getItem('token');
           const response = await fetch(`${API_URL}/marks/${markId}?student_id=${studentId}`, {
             method: 'DELETE',

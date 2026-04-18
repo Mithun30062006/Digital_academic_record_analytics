@@ -20,7 +20,7 @@ async function renderAdminReports(){
     new Chart(ctx, { type:'pie', data:{ labels:['Passed','Failed'], datasets:[{ data:[pf.passed, pf.failed], backgroundColor:['#4CAF50','#F44336'] }] }, options:{responsive:true} });
 
     document.getElementById('load-subject-stats').addEventListener('click', async ()=>{
-      const subId = document.getElementById('subject-stats-id').value.trim(); if(!subId) return alert('Enter subject id');
+      const subId = document.getElementById('subject-stats-id').value.trim(); if(!subId) return Swal.fire('Notice', 'Enter subject id', 'warning');
       const r = await apiFetch(`/reports/subject-stats/${subId}`); const data = await r.json();
       document.getElementById('subject-stats-info').innerText = `Avg: ${data.avg_marks}  Max: ${data.max_marks}  Min: ${data.min_marks}  Pass%: ${data.passPercent}`;
       const ctx2 = document.getElementById('subjectStatsChart').getContext('2d');

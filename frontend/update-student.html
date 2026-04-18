@@ -7,6 +7,7 @@
     <title>Update Student Profile - Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -418,14 +419,14 @@
                 });
 
                 if (response.ok) {
-                    alert('Profile updated successfully!');
+                    await Swal.fire('Success', 'Profile updated successfully!', 'success');
                     window.location.href = 'admin.html';
                 } else {
                     const err = await response.json();
-                    alert('Update failed: ' + (err.message || 'Unknown error'));
+                    Swal.fire('Error', 'Update failed: ' + (err.message || 'Unknown error'), 'error');
                 }
             } catch (err) {
-                alert('Connection error: ' + err.message);
+                Swal.fire('Error', 'Connection error: ' + err.message, 'error');
             } finally {
                 btnUpdate.disabled = false;
                 btnUpdate.innerHTML = 'Update Information';

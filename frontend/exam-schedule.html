@@ -7,6 +7,7 @@
     <title>Exam Schedule Setup</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="css/exam.css">
 </head>
 
@@ -333,7 +334,16 @@
         }
 
         async function deleteHistoryItem(id) {
-            if (!confirm('Are you sure you want to delete this exam schedule?')) return;
+            const result = await Swal.fire({
+                title: 'Delete Schedule?',
+                text: 'Are you sure you want to delete this exam schedule? This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Yes, delete it!'
+            });
+            if (!result.isConfirmed) return;
 
             try {
                 const response = await fetch(`${API_URL}/exam-schedule/${id}`, {
@@ -375,8 +385,9 @@
           const role = localStorage.getItem('role');
           const token = localStorage.getItem('token');
           if (!token || role !== 'admin') {
-            alert('Access Denied: Admin privileges required.');
-            window.location.href = 'index.html';
+            Swal.fire({ title: 'Access Denied', text: 'Admin privileges required.', icon: 'error' }).then(() => {
+                window.location.href = 'index.html';
+            });
           }
         })();
     </script>

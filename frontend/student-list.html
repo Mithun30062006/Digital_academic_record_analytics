@@ -7,6 +7,7 @@
     <title>Student List - Admin Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -581,7 +582,7 @@
 
             // Basic validation
             if (!updatedData.name || !updatedData.student_id || !updatedData.email) {
-                alert("Please fill in Name, ID, and Email.");
+                Swal.fire('Warning', 'Please fill in Name, ID, and Email.', 'warning');
                 return;
             }
 
@@ -601,14 +602,14 @@
                     students[index] = { ...students[index], ...updatedData };
                     delete editingRows[index];
                     renderStudents();
-                    alert("Student details updated successfully!");
+                    Swal.fire('Success', 'Student details updated successfully!', 'success');
                 } else {
                     const error = await response.json();
-                    alert('Error updating student: ' + (error.message || 'Unknown error'));
+                    Swal.fire('Error', 'Error updating student: ' + (error.message || 'Unknown error'), 'error');
                 }
             } catch (err) {
                 console.error("Update failed", err);
-                alert("Failed to connect to the server.");
+                Swal.fire('Error', 'Failed to connect to the server.', 'error');
             }
         }
 
@@ -617,7 +618,16 @@
             const studentId = student.id; // The database _id
             const studentName = student.name;
 
-            if (!confirm(`Are you sure you want to delete student "${studentName}"? This action cannot be undone.`)) {
+            const result = await Swal.fire({
+                title: 'Delete Student?',
+                text: `Are you sure you want to delete student "${studentName}"? This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#94a3b8',
+                confirmButtonText: 'Yes, delete it!'
+            });
+            if (!result.isConfirmed) {
                 return;
             }
 
@@ -630,17 +640,17 @@
                 });
 
                 if (response.ok) {
-                    alert("Student deleted successfully.");
+                    Swal.fire('Deleted!', 'Student deleted successfully.', 'success');
                     // Remove from local array and re-render
                     students.splice(index, 1);
                     renderStudents();
                 } else {
                     const error = await response.json();
-                    alert('Error deleting student: ' + (error.message || 'Unknown error'));
+                    Swal.fire('Error', 'Error deleting student: ' + (error.message || 'Unknown error'), 'error');
                 }
             } catch (err) {
                 console.error("Delete failed", err);
-                alert("Failed to connect to the server.");
+                Swal.fire('Error', 'Failed to connect to the server.', 'error');
             }
         }
 

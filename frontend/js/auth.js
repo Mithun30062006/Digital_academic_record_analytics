@@ -4,7 +4,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
   const role = $('role').value;
   const username = $('username').value.trim();
   const password = $('password').value;
-  if (!username || !password) { alert('Please enter username and password'); return; }
+  if (!username || !password) { Swal.fire('Notice', 'Please enter username and password', 'warning'); return; }
 
   try {
     let res, j;
@@ -24,11 +24,11 @@ document.getElementById('login-btn').addEventListener('click', async () => {
       }
       location.href = role === 'admin' ? 'admin.html' : 'student.html';
     } else {
-      alert(j.message || 'Login failed');
+      Swal.fire('Login Failed', j.message || 'Login failed', 'error');
     }
   } catch (err) {
     console.error(err);
-    alert('Network error');
+    Swal.fire('Error', 'Network error', 'error');
   }
 });
 
