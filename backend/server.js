@@ -14,7 +14,7 @@ const reportsRoutes = require('./routes/reports');
 const app = express();
 app.use(morgan('dev'));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
