@@ -205,6 +205,11 @@ async function saveMarksBatch(studentId, semester, examType, records, published 
 
   if (records.length === 0) return { success: true };
 
+  // Exclusive Visibility: If this batch is being published, unpublish all other sessions for this student
+  if (published) {
+    await Model.updateMany({ student_id: studentId }, { $set: { published: false } });
+  }
+
   // Insert new records
   const docs = records.map((r, index) => ({
     ...r,
@@ -221,6 +226,11 @@ async function saveMarksBatch(studentId, semester, examType, records, published 
 }
 async function publishMarksBatch(studentId, semester, examType) {
   const Model = Mark.model;
+  
+  // Exclusive Visibility: Unpublish ALL previous results for this student first
+  await Model.updateMany({ student_id: studentId }, { $set: { published: false } });
+
+  // Now publish only the selected session
   const result = await Model.updateMany(
     { student_id: studentId, semester, exam_type: examType },
     { $set: { published: true } }
