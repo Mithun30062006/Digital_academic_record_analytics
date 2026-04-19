@@ -88,7 +88,7 @@
                 const datasets = [
                     {
                         label: 'Half 1',
-                        data: data.map(d => d.data.half1 || 0),
+                        data: data.map(d => d.data.h1 || 0),
                         backgroundColor: '#60a5fa',
                         borderRadius: 6,
                         barPercentage: 0.8,
@@ -96,15 +96,23 @@
                     },
                     {
                         label: 'Half 2',
-                        data: data.map(d => d.data.half2 || 0),
+                        data: data.map(d => d.data.h2 || 0),
                         backgroundColor: '#818cf8',
                         borderRadius: 6,
                         barPercentage: 0.8,
                         categoryPercentage: 0.8
                     },
                     {
+                        label: 'Model',
+                        data: data.map(d => d.data.mod || 0),
+                        backgroundColor: '#fbbf24',
+                        borderRadius: 6,
+                        barPercentage: 0.8,
+                        categoryPercentage: 0.8
+                    },
+                    {
                         label: 'Sem Avg',
-                        data: data.map(d => d.data.semester || 0),
+                        data: data.map(d => d.data.sem || 0),
                         backgroundColor: '#3b82f6',
                         borderRadius: 6,
                         barPercentage: 0.8,
