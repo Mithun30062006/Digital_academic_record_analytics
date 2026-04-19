@@ -286,7 +286,157 @@ async function updateMark(id, fields) {
 async function getPerformanceAverages(idOrString) {
   const Model = Mark.model;
   const studentId = await resolveStudentId(idOrString);
+  console.log(`[Storage] Calculating performance for ${studentId}`);
+  
+  // Internal helper for semester normalization
+  const semesterMap = {
+    "1": "I", "1ST": "I", "ONE": "I", "I": "I",
+    "2": "II", "2ND": "II", "TWO": "II", "II": "II",
+    "3": "III", "3RD": "III", "THREE": "III", "III": "III",
+    "4": "IV", "4TH": "IV", "FOUR": "IV", "IV": "IV",
+    "5": "V", "5TH": "V", "FIVE": "V", "V": "V",
+    "6": "VI", "6TH": "VI", "SIX": "VI", "VI": "VI",
+    "7": "VII", "7TH": "VII", "SEVEN": "VII", "VII": "VII",
+    "8": "VIII", "8TH": "VIII", "EIGHT": "VIII", "VIII": "VIII"
+  };
+
   const metrics = await Model.aggregate([
+    { $match: { student_id: studentId } },
+    // Standardize the fields for the join
+    {
+      $addFields: {
+        m_code: { $trim: { input: { $toUpper: "$course_code" } } },
+        m_sem: { $trim: { input: { $toUpper: "$semester" } } }
+      }
+    },
+    // Pipeline lookup for case-insensitive join on both code AND semester
+    {
+      $lookup: {
+        from: 'department_course',
+        let: { markCode: "$m_code", markSem: "$m_sem" },
+        pipeline: [
+          {
+            $addFields: {
+              c_code: { $trim: { input: { $toUpper: "$code" } } },
+              c_sem: { $trim: { input: { $toUpper: "$semesterId" } } }
+            }
+          },
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$c_code", "$$markCode"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: 'course_info'
+      }
+    },
+    { $unwind: { path: '$course_info', preserveNullAndEmptyArrays: true } },
+    {
+      $group: {
+        _id: { semester: "$m_sem", course_code: "$m_code" },
+        course_info: { $first: "$course_info" },
+        marks: { $push: { type: { $trim: { input: { $toUpper: "$exam_type" } } }, val: "$mark" } }
+      }
+    },
+    {
+      $project: {
+        semester: "$_id.semester",
+        credits: { 
+          $toDouble: { 
+            $ifNull: [
+              "$course_info.credit", 
+              { $ifNull: ["$course_info.credits", 3.0] }
+            ] 
+          } 
+        },
+        hasSemesterMarks: { $gt: [{ $size: { $filter: { input: "$marks", as: "m", cond: { $eq: ["$$m.type", "SEMESTER"] } } } }, 0] },
+        h1: { $toDouble: { $ifNull: [{ $arrayElemAt: [{ $filter: { input: "$marks", as: "m", cond: { $eq: ["$$m.type", "HALF 1"] } } }, 0] }, { val: 0 }] }.val },
+        h2: { $toDouble: { $ifNull: [{ $arrayElemAt: [{ $filter: { input: "$marks", as: "m", cond: { $eq: ["$$m.type", "HALF 2"] } } }, 0] }, { val: 0 }] }.val },
+        mod: { $toDouble: { $ifNull: [{ $arrayElemAt: [{ $filter: { input: "$marks", as: "m", cond: { $eq: ["$$m.type", "MODEL"] } } }, 0] }, { val: 0 }] }.val },
+        sem: { $toDouble: { $ifNull: [{ $arrayElemAt: [{ $filter: { input: "$marks", as: "m", cond: { $eq: ["$$m.type", "SEMESTER"] } } }, 0] }, { val: 0 }] }.val },
+        course_type: { $toUpper: { $ifNull: ["$course_info.type", { $ifNull: ["$course_type", "THEORY"] }] } }
+      }
+    },
+    {
+      $project: {
+        semester: 1,
+        credits: 1,
+        hasSemester: "$hasSemesterMarks",
+        finalMark: {
+          $cond: [
+            { $or: [
+              { $regexMatch: { input: "$course_type", pattern: /LAB/i } },
+              { $gt: ["$mod", 0] } // Safety fallback: if there's a Model mark, treat as Lab
+            ] },
+            // Lab Formula: 15% H1 + 15% H2 + 10% Model + 60% Semester
+            { $round: [{ $add: [
+              { $multiply: [{ $divide: [{ $add: ["$h1", "$h2"] }, 2] }, 0.3] },
+              { $multiply: ["$mod", 0.1] },
+              { $multiply: ["$sem", 0.6] }
+            ] }, 0] },
+            // Theory Formula: 20% H1 + 20% H2 + 60% Semester
+            { $round: [{ $add: [
+              { $multiply: [{ $divide: [{ $add: ["$h1", "$h2"] }, 2] }, 0.4] },
+              { $multiply: ["$sem", 0.6] }
+            ] }, 0] }
+          ]
+        }
+      }
+    },
+    {
+      $project: {
+        semester: 1,
+        credits: 1,
+        gradePoint: {
+          $cond: [
+            "$hasSemester",
+            {
+              $switch: {
+                branches: [
+                  { case: { $gte: ["$finalMark", 91] }, then: 10 },
+                  { case: { $gte: ["$finalMark", 81] }, then: 9 },
+                  { case: { $gte: ["$finalMark", 71] }, then: 8 },
+                  { case: { $gte: ["$finalMark", 61] }, then: 7 },
+                  { case: { $gte: ["$finalMark", 51] }, then: 6 },
+                  { case: { $gte: ["$finalMark", 50] }, then: 5 }
+                ],
+                default: 0
+              }
+            },
+            0
+          ]
+        }
+      }
+    },
+    {
+      $group: {
+        _id: "$semester",
+        totalPoints: { $sum: { $multiply: ["$gradePoint", "$credits"] } },
+        totalCredits: { $sum: "$credits" } // Use all credits that have marks
+      }
+    },
+    {
+      $project: {
+        semester: "$_id",
+        sgpa: {
+          $cond: [{ $eq: ["$totalCredits", 0] }, 0, { $round: [{ $divide: ["$totalPoints", "$totalCredits"] }, 2] }]
+        },
+        _id: 0
+      }
+    }
+  ]);
+
+  // Normalize semester names in results to Roman numerals for UI consistency
+  const processedMetrics = metrics.map(m => {
+    const key = String(m.semester).trim().toUpperCase();
+    return { ...m, semester: semesterMap[key] || m.semester };
+  });
+
+  const chartDataRaw = await Model.aggregate([
     { $match: { student_id: studentId } },
     { $group: {
         _id: { semester: "$semester", exam_type: "$exam_type" },
@@ -303,18 +453,23 @@ async function getPerformanceAverages(idOrString) {
         }
       }
     },
-    { $project: {
-        semester: "$_id",
-        data: { $arrayToObject: "$metrics" },
-        _id: 0
-      }
-    }
+    { $project: { semester: "$_id", data: { $arrayToObject: "$metrics" }, _id: 0 } }
   ]);
 
-  // Order semesters correctly (I, II, III...)
+  const chartData = chartDataRaw.map(c => {
+    const key = String(c.semester).trim().toUpperCase();
+    return { ...c, semester: semesterMap[key] || c.semester };
+  });
+
+  const finalResults = chartData.map(c => {
+    const s = processedMetrics.find(m => String(m.semester).toUpperCase() === String(c.semester).toUpperCase());
+    return { ...c, sgpa: s ? s.sgpa : 0.00 };
+  });
+
   const semesterOrder = { 'I':1, 'II':2, 'III':3, 'IV':4, 'V':5, 'VI':6, 'VII':7, 'VIII':8 };
-  return metrics.sort((a,b) => (semesterOrder[a.semester] || 99) - (semesterOrder[b.semester] || 99));
+  return finalResults.sort((a,b) => (semesterOrder[a.semester] || 99) - (semesterOrder[b.semester] || 99));
 }
+
 
 async function removeMark(id, studentId) {
   const Model = Mark.model;

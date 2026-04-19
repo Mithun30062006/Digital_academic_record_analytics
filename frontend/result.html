@@ -191,7 +191,7 @@
             const markValue = Number(m.mark);
             totalMarks += markValue;
             
-            const grade = getGrade(markValue);
+            const grade = m.exam_type === 'Semester' ? getGrade(markValue) : '-';
             const isPass = markValue >= 50;
             const statusColor = isPass ? 'blue' : 'red';
             const statusText = isPass ? 'PASS' : 'FAIL';
@@ -209,7 +209,7 @@
             tbody.appendChild(tr);
         });
 
-        const percentage = Math.round(totalMarks / marks.length);
+        const percentage = (totalMarks / marks.length).toFixed(2);
         document.getElementById('overallPercentage').innerText = `${percentage}%`;
         document.getElementById('summaryCard').classList.remove('invisible');
     }

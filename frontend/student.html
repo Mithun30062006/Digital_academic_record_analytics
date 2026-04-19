@@ -255,7 +255,13 @@
                             // 3. Load Performance
                             try {
                                 const performanceRes = await fetch(`${API_URL}/marks/performance/${resolvedDbId || resolvedStudentIdForData}?v=${timestamp}`, { headers });
-                                if (performanceRes.ok) setPerformanceData(await performanceRes.json());
+                                if (performanceRes.ok) {
+                                    const data = await performanceRes.json();
+                                    console.log('Performance Data Received:', data);
+                                    setPerformanceData(data);
+                                } else {
+                                    console.error('Failed to fetch performance data:', await performanceRes.text());
+                                }
                             } catch (e) { console.error('Performance fetch failed:', e); }
                         }
 
@@ -422,14 +428,16 @@
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                                 <MetricCard
                                     title="Current SGPA"
-                                    value="0"
-                                    subtitle="Academic period started"
+                                    value={performanceData.length > 0 ? (performanceData[performanceData.length - 1].sgpa > 0 ? performanceData[performanceData.length - 1].sgpa : "0.00") : "0.00"}
+                                    subtitle={performanceData.length > 0 ? (performanceData[performanceData.length - 1].sgpa > 0 ? `Semester ${performanceData[performanceData.length - 1].semester}` : "Academic Progress") : "Processing Data"}
                                     subtitleColor="text-gray-500"
                                 />
                                 <MetricCard
                                     title="Overall CGPA"
-                                    value="0"
-                                    subtitle="Academic Standing: - "
+                                    value={performanceData.length > 0 
+                                        ? (performanceData.reduce((acc, curr) => acc + (Number(curr.sgpa) || 0), 0) / performanceData.length).toFixed(2)
+                                        : "0.00"}
+                                    subtitle={performanceData.length > 0 ? `Avg of ${performanceData.length} Semester(s)` : "Pending Results"}
                                 />
                                 <MetricCard
                                     title="Attendance"
