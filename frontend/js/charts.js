@@ -42,7 +42,7 @@ async function renderStudentPerformance(){
     const labels = marks.map(m=> m.subject_name || m.subject_code || m.subject_id);
     const dataPerc = marks.map(m=> Math.round((m.marks / (m.max_marks||100))*100));
     const ctx = document.getElementById('performanceChart').getContext('2d');
-    new Chart(ctx, { type:'bar', data:{ labels, datasets:[{ label:'% Score', data: dataPerc, backgroundColor:'#42A5F5' }] }, options:{scales:{y:{beginAtZero:true, max:100}} } });
+    new Chart(ctx, { type:'bar', data:{ labels, datasets:[{ label:'% Score', data: dataPerc, backgroundColor:'#42A5F5', barPercentage: 0.5, categoryPercentage: 0.5 }] }, options:{scales:{y:{beginAtZero:true, max:100}} } });
   }catch(err){ console.error(err); }
 }
 

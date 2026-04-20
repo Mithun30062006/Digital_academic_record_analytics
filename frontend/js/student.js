@@ -47,7 +47,7 @@ async function init(){
     // approximate CGPA/SGPA values for demo if not provided by API
     const cgpa = (profile.cumulative_cgpa !== undefined) ? profile.cumulative_cgpa : (avgPerc/12).toFixed(2);
     const sgpa = (profile.current_sgpa !== undefined) ? profile.current_sgpa : (avgPerc/12).toFixed(2);
-    document.getElementById('sgpa').innerText = sgpa;
+    document.getElementById('sgpa').innerText = `${sgpa} / 10`;
     document.getElementById('cgpa').innerText = cgpa;
     document.getElementById('attendance').innerText = (profile.attendance !== undefined) ? `${profile.attendance}%` : `${Math.round(Math.min(100, avgPerc))}%`;
     document.getElementById('arrears').innerText = profile.arrears !== undefined ? profile.arrears : (profile.arrear_count||0);

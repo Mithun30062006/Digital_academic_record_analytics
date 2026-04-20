@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="js/config.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -58,6 +59,11 @@
         <div class="max-w-5xl mx-auto">
             <header class="mb-8 flex justify-between items-center">
                 <h1 class="text-3xl font-extrabold text-gray-800">Academic Results</h1>
+                <button id="generatePdfBtn" onclick="generatePDF()" class="hidden bg-white hover:bg-gray-50 text-blue-600 p-3 rounded-2xl shadow-sm border border-gray-100 transition-all active:scale-95 group" title="Generate PDF Report">
+                    <svg class="w-6 h-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </button>
             </header>
 
             <section class="bg-orange-50 rounded-3xl p-8 mb-8 border border-orange-100 shadow-sm">
@@ -212,6 +218,34 @@
         const percentage = (totalMarks / marks.length).toFixed(2);
         document.getElementById('overallPercentage').innerText = `${percentage}%`;
         document.getElementById('summaryCard').classList.remove('invisible');
+        document.getElementById('generatePdfBtn').classList.remove('hidden');
+    }
+
+    async function generatePDF() {
+        const element = document.querySelector('main');
+        const studentName = document.getElementById('studentNameLabel').innerText;
+        const studentId = document.getElementById('studentIdLabel').innerText;
+        
+        const opt = {
+            margin:       10,
+            filename:     `Academic_Result_${studentId}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            // Temporarily hide the button during capture
+            const btn = document.getElementById('generatePdfBtn');
+            btn.style.display = 'none';
+            
+            await html2pdf().set(opt).from(element).save();
+            
+            btn.style.display = 'block';
+        } catch (err) {
+            console.error('PDF Generation Error:', err);
+            alert('Failed to generate PDF. Please try again.');
+        }
     }
 
     function showNoResults() {
@@ -224,6 +258,7 @@
         document.getElementById('examTypeLabel').innerText = '-';
         document.getElementById('overallPercentage').innerText = '--%';
         document.getElementById('summaryCard').classList.add('invisible');
+        document.getElementById('generatePdfBtn').classList.add('hidden');
     }
 
     function getGrade(mark) {
