@@ -215,6 +215,61 @@
             .form-card { padding: 24px; }
             .btn-group { flex-direction: column; }
         }
+
+        /* Autocomplete Styles */
+        .search-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-results {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            z-index: 100;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .result-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item:hover {
+            background-color: #fce7f3;
+        }
+
+        .result-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .result-id {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 500;
+        }
     </style>
 </head>
 
@@ -228,15 +283,15 @@
         <div class="form-card">
             <!-- SEARCH SECTION -->
             <div class="search-section">
-                <label class="form-label">Find Student by ID</label>
+                <label class="form-label">Search Student Name or ID</label>
                 <div class="search-group">
-                    <input type="text" id="searchId" class="form-input" placeholder="Enter student ID (e.g. 2023001)">
-                    <button id="btnSearch" class="btn btn-search">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
+                    <div class="search-wrapper">
+                        <input type="text" id="searchId" class="form-input" placeholder="Type name or ID (e.g. Mithun or 2023001)" autocomplete="off">
+                        <div id="searchResults" class="search-results"></div>
+                    </div>
                 </div>
                 <div id="searchStatus" class="status-badge status-idle mt-4" style="margin-top: 15px;">
-                    <i class="fa-solid fa-circle-question mr-2" style="margin-right: 8px;"></i> Waiting for search...
+                    <i class="fa-solid fa-circle-question mr-2" style="margin-right: 8px;"></i> Search to begin...
                 </div>
             </div>
 
@@ -310,10 +365,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Password (Reset if needed)</label>
-                        <input type="text" id="password" class="form-input" placeholder="Enter new password">
-                    </div>
+
 
                     <div class="btn-group">
                         <button type="submit" class="btn btn-primary" id="btnUpdate">Update Information</button>
@@ -327,48 +379,74 @@
     <script src="js/config.js"></script>
     <script>
         const searchInput = document.getElementById('searchId');
-        const btnSearch = document.getElementById('btnSearch');
+        const resultsContainer = document.getElementById('searchResults');
         const searchStatus = document.getElementById('searchStatus');
         const formSection = document.getElementById('formSection');
         const updateForm = document.getElementById('updateForm');
+        
+        let allStudents = [];
 
-        // Search logic
-        async function findStudent() {
-            const query = searchInput.value.trim();
-            if(!query) return;
-
-            btnSearch.disabled = true;
-            searchStatus.className = 'status-badge status-idle';
-            searchStatus.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2" style="margin-right: 8px;"></i> Searching...';
-            
+        // Load all students once on focus or load
+        async function fetchAllStudents() {
             try {
                 const response = await fetch(`${API_URL}/students`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
-                
                 if (response.ok) {
-                    const students = await response.json();
-                    const student = students.find(s => s.student_id === query || s.id === query);
-                    
-                    if (student) {
-                        populateForm(student);
-                        searchStatus.className = 'status-badge status-found';
-                        searchStatus.innerHTML = `<i class="fa-solid fa-circle-check mr-2" style="margin-right: 8px;"></i> Student found: ${student.name}`;
-                        formSection.classList.add('active');
-                    } else {
-                        searchStatus.className = 'status-badge status-error';
-                        searchStatus.innerHTML = '<i class="fa-solid fa-circle-xmark mr-2" style="margin-right: 8px;"></i> Student not found';
-                        formSection.classList.remove('active');
-                    }
-                } else {
-                    throw new Error('API Error');
+                    allStudents = await response.json();
                 }
             } catch (err) {
-                searchStatus.className = 'status-badge status-error';
-                searchStatus.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-2" style="margin-right: 8px;"></i> Error searching: ${err.message}`;
-            } finally {
-                btnSearch.disabled = false;
+                console.error('Error fetching students:', err);
             }
+        }
+
+        fetchAllStudents();
+
+        // Fuzzy search logic
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            if (!query || query.length < 1) {
+                resultsContainer.classList.remove('active');
+                return;
+            }
+
+            const matches = allStudents.filter(s => 
+                (s.name && s.name.toLowerCase().includes(query)) || 
+                (s.student_id && s.student_id.toLowerCase().includes(query))
+            ).slice(0, 8); // Show top 8 matches
+
+            if (matches.length > 0) {
+                resultsContainer.innerHTML = '';
+                matches.forEach(s => {
+                    const div = document.createElement('div');
+                    div.className = 'result-item';
+                    div.innerHTML = `
+                        <span class="result-name">${s.name || 'Unknown'}</span>
+                        <span class="result-id">ID: ${s.student_id || 'N/A'}</span>
+                    `;
+                    div.onclick = () => selectStudent(s);
+                    resultsContainer.appendChild(div);
+                });
+                resultsContainer.classList.add('active');
+            } else {
+                resultsContainer.classList.remove('active');
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.classList.remove('active');
+            }
+        });
+
+        function selectStudent(s) {
+            populateForm(s);
+            searchInput.value = s.student_id;
+            resultsContainer.classList.remove('active');
+            searchStatus.className = 'status-badge status-found';
+            searchStatus.innerHTML = `<i class="fa-solid fa-circle-check mr-2" style="margin-right: 8px;"></i> Selected: ${s.name}`;
+            formSection.classList.add('active');
         }
 
         function populateForm(s) {
@@ -381,11 +459,7 @@
             document.getElementById('department').value = s.department || '';
             document.getElementById('year').value = s.year || '';
             document.getElementById('semester').value = s.semester || 'I';
-            document.getElementById('password').value = s.password || '';
         }
-
-        btnSearch.addEventListener('click', findStudent);
-        searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') findStudent(); });
 
         // Update logic
         updateForm.addEventListener('submit', async (e) => {
@@ -401,8 +475,7 @@
                 batch: document.getElementById('batch').value,
                 department: document.getElementById('department').value,
                 year: document.getElementById('year').value,
-                semester: document.getElementById('semester').value,
-                password: document.getElementById('password').value
+                semester: document.getElementById('semester').value
             };
 
             btnUpdate.disabled = true;
